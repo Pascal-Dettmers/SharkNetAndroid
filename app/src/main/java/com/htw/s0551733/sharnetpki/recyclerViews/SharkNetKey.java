@@ -27,13 +27,13 @@ public class SharkNetKey implements Serializable, Comparable<SharkNetKey>, Shark
     private String publicKeyInBase64;
 
     @SerializedName("publicKeyInBase64")
-    private Date validityPeriod;
+    private Date expirationDate;
 
-    public SharkNetKey(String alias, String uuid, String publicKeyInBase64, Date validityPeriod) {
+    public SharkNetKey(String alias, String uuid, String publicKeyInBase64, Date expirationDate) {
         this.alias = alias;
         this.uuid = uuid;
         this.publicKeyInBase64 = publicKeyInBase64;
-        this.validityPeriod = validityPeriod;
+        this.expirationDate = expirationDate;
     }
 
     public String getAlias() {
@@ -57,8 +57,8 @@ public class SharkNetKey implements Serializable, Comparable<SharkNetKey>, Shark
     }
 
     @Override
-    public Date getValidityPeriod() {
-        return this.validityPeriod;
+    public Date getExpirationDate() {
+        return this.expirationDate;
     }
 
     @Override

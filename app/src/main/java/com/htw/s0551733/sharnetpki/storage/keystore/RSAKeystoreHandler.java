@@ -18,15 +18,25 @@ import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.spec.MGF1ParameterSpec;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Set;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 
+import main.de.htw.berlin.s0551733.sharknetpki.PKI;
+import main.de.htw.berlin.s0551733.sharknetpki.SharknetCertificate;
+import main.de.htw.berlin.s0551733.sharknetpki.SharknetPublicKey;
+import main.de.htw.berlin.s0551733.sharknetpki.impl.SharkNetUser;
 import timber.log.Timber;
 
-public final class RSAKeystoreHandler implements KeystoreHandler {
+/**
+ * Pure Android Implementation of a SharkNetPKI
+ */
+public final class RSAKeystoreHandler implements KeystoreHandler, PKI {
 
     private static RSAKeystoreHandler rsaKeystoreHandler = null;
 
@@ -48,6 +58,9 @@ public final class RSAKeystoreHandler implements KeystoreHandler {
     private final static String KEY_ALIAS = "KeyPair";
 
     private final static String AndroidKeyStore = "AndroidKeyStore";
+
+    private Set<SharknetPublicKey> sharknetPublicKeys;
+    private Set<SharknetCertificate> sharknetCertificates;
 
     private RSAKeystoreHandler() {
         setupKeystore();
@@ -112,7 +125,6 @@ public final class RSAKeystoreHandler implements KeystoreHandler {
             keyPairGenerator.initialize(
                     new KeyGenParameterSpec.Builder(KEY_ALIAS, ANY_PURPOSE)
                             .setRandomizedEncryptionRequired(false)
-//                            .setDigests(KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512)
                             .setDigests(
                                     KeyProperties.DIGEST_NONE, KeyProperties.DIGEST_MD5,
                                     KeyProperties.DIGEST_SHA1, KeyProperties.DIGEST_SHA224,
@@ -120,18 +132,10 @@ public final class RSAKeystoreHandler implements KeystoreHandler {
                                     KeyProperties.DIGEST_SHA512)
 
                             .setSignaturePaddings(KeyProperties.SIGNATURE_PADDING_RSA_PSS)
-//                            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_OAEP)
                             .setEncryptionPaddings(
                                     KeyProperties.ENCRYPTION_PADDING_NONE,
                                     KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1,
                                     KeyProperties.ENCRYPTION_PADDING_RSA_OAEP)
-
-//                            .setCertificateSubject(new X500Principal("CN=Android, O=Android Authority"))
-//                            .setCertificateSerialNumber(new BigInteger(256, new Random()))
-
-//                            .setCertificateNotBefore(new Date(now - (now % 1000L)))
-//                            .setCertificateNotAfter(new Date(((new Date(now - (now % 1000L))).getTime()) + (validityDays * 86400000L)))
-
                             .setUserAuthenticationRequired(false)
                             .setKeyValidityStart(start.getTime())
                             .setKeyValidityEnd(end.getTime())
@@ -238,7 +242,6 @@ public final class RSAKeystoreHandler implements KeystoreHandler {
         try {
 
             signature = Signature.getInstance("SHA256withRSA/PSS");
-//            signature.initVerify(keyStore.getCertificate(KEY_ALIAS).getPublicKey());
             signature.initVerify(certificate);
             signature.update(data);
             valid = signature.verify(signedData);
@@ -256,4 +259,74 @@ public final class RSAKeystoreHandler implements KeystoreHandler {
 
     }
 
+    @Override
+    public List<SharkNetUser> getUsers() {
+        final List<SharkNetUser> users = new ArrayList<>();
+        for (SharknetPublicKey key : sharknetPublicKeys) {
+            users.add(new SharkNetUser(key.getUuid(), key.getAlias()));
+        }
+        for (SharknetCertificate cert : sharknetCertificates) {
+            users.add(new SharkNetUser(cert.getUuid(), cert.getAlias()));
+        }
+        return users;
+    }
+
+    @Override
+    public PublicKey getPublicKey(String uuid) {
+        PublicKey wantedKey = null;
+        for (SharknetPublicKey key : sharknetPublicKeys) {
+            if (key.getUuid().equals(uuid)) {
+                wantedKey = key.getPublicKey();
+                break;
+            }
+        }
+        if (wantedKey == null) {
+            for (SharknetCertificate cert : sharknetCertificates) {
+                if (cert.getUuid().equals(uuid)) {
+                    wantedKey = cert.getCertificate().getPublicKey();
+                    break;
+                }
+            }
+        }
+        return wantedKey;    }
+
+    @Override
+    public Certificate getCertificate(String uuid) {
+        Certificate wantedCertificate = null;
+        for (SharknetCertificate cert : sharknetCertificates) {
+            if (cert.getUuid().equals(uuid)) {
+                wantedCertificate = cert.getCertificate();
+                break;
+            }
+        }
+        return wantedCertificate;    }
+
+    @Override
+    public void addCertificate(SharknetCertificate sharknetCertificate) {
+        sharknetCertificates.add(sharknetCertificate);
+    }
+
+    @Override
+    public PublicKey getMyOwnPublicKey() throws KeyStoreException {
+        return getPublicKey();
+    }
+
+    @Override
+    public boolean verifySignature(Certificate certToVerify, PublicKey potentialSignerPublicKey) {
+        boolean result = true;
+        try {
+            certToVerify.verify(potentialSignerPublicKey);
+        } catch (Exception e) {
+            if (e instanceof InvalidKeyException) {
+                System.out.println("wrong Key");
+                return !result;
+            }
+            if (e instanceof SignatureException) {
+                System.out.println("Signature error");
+                return !result;
+            } else {
+                return !result; }
+        }
+        return result;
+    }
 }

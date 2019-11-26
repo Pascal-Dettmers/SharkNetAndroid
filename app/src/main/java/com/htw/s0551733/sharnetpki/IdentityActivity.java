@@ -20,6 +20,8 @@ import android.widget.TextView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.htw.s0551733.sharnetpki.storage.IdentityStorage;
+import com.htw.s0551733.sharnetpki.storage.SharedPreferencesHandler;
+import com.htw.s0551733.sharnetpki.storage.SharkIdentityStorage;
 
 import java.io.IOException;
 import java.security.KeyStoreException;
@@ -33,7 +35,7 @@ public class IdentityActivity extends AppCompatActivity {
     private TextView tvUuid;
     private ImageButton ibEditAlias;
     private ImageView ivAliasPic;
-    private IdentityStorage storage;
+    private SharkIdentityStorage storage;
     private Uri selectedImage;
 
     /**
@@ -46,7 +48,7 @@ public class IdentityActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_identity);
 
-        storage = new IdentityStorage(this.getApplicationContext());
+        storage = IdentityStorage.getIdentityStorage(this.getApplicationContext());
 
         setUpViews();
     }
@@ -86,7 +88,7 @@ public class IdentityActivity extends AppCompatActivity {
 
     private void setAlias() {
         this.tvAlias =  findViewById(R.id.tv_alias_identity_activity);
-        this.tvAlias.setText(storage.getOwnerName());
+        this.tvAlias.setText(storage.getAlias());
     }
 
 
@@ -103,7 +105,7 @@ public class IdentityActivity extends AppCompatActivity {
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        storage.setOwnerName(aliasiInput.getText().toString());
+                        storage.setAlias(aliasiInput.getText().toString());
                         setAlias();
                     }
                 })
@@ -135,6 +137,7 @@ public class IdentityActivity extends AppCompatActivity {
                     try {
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                         ivAliasPic.setImageBitmap(bitmap);
+                        SharedPreferencesHandler sharedPreferencesHandler = new SharedPreferencesHandler(this.getApplicationContext());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

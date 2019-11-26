@@ -11,8 +11,10 @@ public class Constants {
     public static final String FILENAME = "SharkNet2PreferenceFilename";
     public static final String KEY_LIST = "allReceivedKeys";
     public static final String CERTIFICATE_LIST = "allReceivedCertificates";
-    public static final String KeystorePW = "keystorePW";
-    public static final int KEY_DURATION_YEARS = 1;
+    public static final String KEYSTORE_PW = "keystorePW";
+    public static final String KEY_DURATION_YEARS = "keyDurationYears";
+    public static final String IDENTITY_AVATAR_URI = "identityAvatarUri";
+    public static final int DEFAULT_KEY_DURATION_YEARS = 1;
 
 
 

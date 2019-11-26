@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private SharkIdentityStorage storage;
+    private SharedPreferencesHandler sharedPreferencesHandler;
     private RSAKeystoreHandler keystore;
     private NfcAdapter nfcAdapter;
     private SharknetPKI pki;
@@ -80,10 +81,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        storage = new IdentityStorage(this.getApplication());
+        storage = IdentityStorage.getIdentityStorage(this.getApplication());
 
         this.nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         NfcChecks.preliminaryNfcChecks(nfcAdapter, this);
+
+        sharedPreferencesHandler = new SharedPreferencesHandler(this.getApplicationContext());
 
         BottomAppBar bar = findViewById(R.id.bottom_app_bar);
         setSupportActionBar(bar);
@@ -100,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        appSetUp();
+        appStartSetUp();
         initPKI();
         setUpTabLayout();
     }
@@ -114,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void appSetUp() {
+    private void appStartSetUp() {
         generateUUID();
         setPublicKeyAlias();
     }
@@ -132,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setPublicKeyAlias() {
-        if (storage.getOwnerName() != null) {
+        if (storage.getAlias() != null) {
         } else {
             createAliasDialog();
         }
@@ -141,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
     private void createAliasDialog() {
         LayoutInflater inflater = this.getLayoutInflater();
         View viewInflated = inflater.inflate(R.layout.dialog_set_alias, null);
-        final EditText aliasiInput = viewInflated.findViewById(R.id.inputAlias);
+        final EditText aliasInput = viewInflated.findViewById(R.id.inputAlias);
 
 
         new MaterialAlertDialogBuilder(this)
@@ -151,13 +154,13 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        storage.setOwnerName(aliasiInput.getText().toString());
+                        storage.setAlias(aliasInput.getText().toString());
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        storage.setOwnerName("Mustermann");
+                        storage.setAlias("Mustermann");
                     }
                 })
                 .setCancelable(false)
@@ -180,12 +183,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Set<SharknetCertificate> getCertificateSet() {
-        SharedPreferencesHandler handler = new SharedPreferencesHandler(this.getApplicationContext());
+        sharedPreferencesHandler = new SharedPreferencesHandler(this.getApplicationContext());
         Gson gson = new Gson();
         Type typeOfCertificateList = new TypeToken<HashSet<SharknetCertificate>>() {
         }.getType();
 
-        String certificateListInJson = handler.getValue(Constants.KEY_LIST);
+        String certificateListInJson = sharedPreferencesHandler.getValue(Constants.KEY_LIST);
 
         if (certificateListInJson != null) {
             return gson.<HashSet<SharknetCertificate>>fromJson(certificateListInJson, typeOfCertificateList);
@@ -195,12 +198,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Set<SharknetPublicKey> getPublicKeySet() {
-        SharedPreferencesHandler handler = new SharedPreferencesHandler(this.getApplicationContext());
+        sharedPreferencesHandler = new SharedPreferencesHandler(this.getApplicationContext());
         Gson gson = new Gson();
         Type typeOfKeyList = new TypeToken<HashSet<SharkNetKey>>() {
         }.getType();
 
-        String keyListInJson = handler.getValue(Constants.KEY_LIST);
+        String keyListInJson = sharedPreferencesHandler.getValue(Constants.KEY_LIST);
 
         if (keyListInJson != null) {
             return gson.<HashSet<SharknetPublicKey>>fromJson(keyListInJson, typeOfKeyList);
@@ -225,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setPushMessage() throws IOException {
         Calendar expirationDate = Calendar.getInstance();
-        expirationDate.add(Calendar.YEAR, Constants.KEY_DURATION_YEARS);
+        expirationDate.add(Calendar.YEAR, Constants.DEFAULT_KEY_DURATION_YEARS);
         byte[] encodedRawPublicKey = null;
         try {
             encodedRawPublicKey = objToByte(pki.getMyOwnPublicKey());
@@ -233,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         String publicKeyInBase64 = Base64.encodeToString(encodedRawPublicKey, Base64.DEFAULT);
-        SharknetPublicKey dataToSend = new SharkNetKey(storage.getOwnerName().toString(), storage.getOwnerID().toString(), publicKeyInBase64, expirationDate.getTime());
+        SharknetPublicKey dataToSend = new SharkNetKey(storage.getAlias().toString(), storage.getOwnerID().toString(), publicKeyInBase64, expirationDate.getTime());
         initNfcMessageManager(objToByte(dataToSend));
     }
 
