@@ -1,7 +1,6 @@
 package com.htw.s0551733.sharnetpki.pager.fragments;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,22 +15,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.htw.s0551733.sharnetpki.R;
 import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetCertification;
 import com.htw.s0551733.sharnetpki.recyclerViews.adapter.CertificationRecyclerAdapter;
-import com.htw.s0551733.sharnetpki.storage.SharedPreferencesHandler;
+import com.htw.s0551733.sharnetpki.util.SharedPreferencesHandler;
 
 import java.util.ArrayList;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link CertificationsFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link CertificationsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class CertificationsFragment extends Fragment implements CertificationRecyclerAdapter.OnCertificationClickListener {
 
-    private OnFragmentInteractionListener mListener;
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter recyclerViewAdapter;
@@ -44,12 +33,6 @@ public class CertificationsFragment extends Fragment implements CertificationRec
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment CertificationsFragment.
-     */
     public static CertificationsFragment newInstance() {
         CertificationsFragment fragment = new CertificationsFragment();
         Bundle args = new Bundle();
@@ -74,7 +57,6 @@ public class CertificationsFragment extends Fragment implements CertificationRec
         // in content do not change the layout size of the RecyclerView
         recyclerView.setHasFixedSize(true);
 
-        // use a linear layout manager
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
@@ -91,17 +73,7 @@ public class CertificationsFragment extends Fragment implements CertificationRec
             recyclerViewAdapter = new CertificationRecyclerAdapter(this.certList, this);
             recyclerView.setAdapter(recyclerViewAdapter);
         } else {
-            // todo empty recycler view layout add dummy data
-//            ArrayList<SharkNetCertification> dummyData = new ArrayList<>();
-//
-//            dummyData.add(new SharkNetCertification("DummyAlias1", "Dummy UUID", "",
-//                    new Signer("Dummy Signer Alias1", "Dummy uuid", "")));
-//
-//            dummyData.add(new SharkNetCertification("DummyAlias2", "Dummy UUID", "",
-//                    new Signer("Dummy Signer Alias2", "Dummy uuid", "")));
-//
-//            recyclerViewAdapter = new CertificationRecyclerAdapter(dummyData, this);
-//            recyclerView.setAdapter(recyclerViewAdapter);
+
         }
 
     }
@@ -114,7 +86,6 @@ public class CertificationsFragment extends Fragment implements CertificationRec
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
     @Override
@@ -123,20 +94,5 @@ public class CertificationsFragment extends Fragment implements CertificationRec
 //        int itemPos = position;
 //        intent.putExtra("ITEM_POS", itemPos);
 //        startActivity(intent);
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 }

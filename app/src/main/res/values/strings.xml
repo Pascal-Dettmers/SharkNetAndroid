@@ -4,4 +4,11 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_receive_nfcdata">ReceiveNFCDataActivity</string>
+    <string name="button_delete">Delete</string>
+    <string name="button_send">Send</string>
+    <string name="dialog_alias_hint">Your Alias</string>
+    <string name="content_description_avatar">Avatar</string>
+    <string name="public_key_title">Public Key</string>
+    <string name="uuid_title">UUID</string>
+    <string name="expiration_date_title">Expiration Date</string>
 </resources>

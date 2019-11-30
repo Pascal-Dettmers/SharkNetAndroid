@@ -1,9 +1,7 @@
-package com.htw.s0551733.sharnetpki.storage;
+package com.htw.s0551733.sharnetpki.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-
-import com.htw.s0551733.sharnetpki.util.Constants;
 
 public class SharedPreferencesHandler {
 

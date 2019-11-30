@@ -1,8 +1,5 @@
 package com.htw.s0551733.sharnetpki;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,15 +15,17 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.htw.s0551733.sharnetpki.storage.IdentityStorage;
-import com.htw.s0551733.sharnetpki.storage.SharedPreferencesHandler;
-import com.htw.s0551733.sharnetpki.storage.SharkIdentityStorage;
+import com.htw.s0551733.sharnetpki.storage.datastore.DataStorage;
+import com.htw.s0551733.sharnetpki.util.SharedPreferencesHandler;
 
 import java.io.IOException;
-import java.security.KeyStoreException;
+import java.text.SimpleDateFormat;
 
-import main.de.htw.berlin.s0551733.sharknetpki.impl.SharknetPKI;
+import main.de.htw.berlin.s0551733.sharknetpki.SharknetPublicKey;
 
 public class IdentityActivity extends AppCompatActivity {
 
@@ -34,9 +33,12 @@ public class IdentityActivity extends AppCompatActivity {
     private TextView tvPublicKey;
     private TextView tvUuid;
     private ImageButton ibEditAlias;
-    private ImageView ivAliasPic;
-    private SharkIdentityStorage storage;
+    private ImageButton ibCloseActivity;
+    private TextView tvExparationDate;
+    private ImageView ivAvatar;
+    private DataStorage storage;
     private Uri selectedImage;
+    private SharknetPublicKey myOwnPublicKey;
 
     /**
      * Intent Request Code
@@ -48,24 +50,21 @@ public class IdentityActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_identity);
 
-        storage = IdentityStorage.getIdentityStorage(this.getApplicationContext());
-
+        storage = new DataStorage(new SharedPreferencesHandler(this));
+        this.myOwnPublicKey = storage.getMyOwnPublicKey();
         setUpViews();
     }
 
     private void setUpViews() {
+
         setAlias();
 
-        this.tvUuid =  findViewById(R.id.tv_uuid);
-        this.tvUuid.setText(storage.getOwnerID());
+        this.tvUuid = findViewById(R.id.tv_uuid);
+        this.tvUuid.setText(myOwnPublicKey.getUuid());
 
-        this.tvPublicKey =  findViewById(R.id.tv_public_key);
-        try {
-            String publicKeyEncodedToString = Base64.encodeToString(SharknetPKI.getInstance().getMyOwnPublicKey().getEncoded(), Base64.DEFAULT);
-            tvPublicKey.setText(publicKeyEncodedToString.substring(24));
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        }
+        this.tvPublicKey = findViewById(R.id.tv_public_key);
+        String publicKeyEncodedToString = Base64.encodeToString(myOwnPublicKey.getPublicKey().getEncoded(), Base64.DEFAULT);
+        tvPublicKey.setText(publicKeyEncodedToString.substring(44));
 
 
         this.ibEditAlias = findViewById(R.id.imageButton_edit_alias);
@@ -76,9 +75,21 @@ public class IdentityActivity extends AppCompatActivity {
             }
         });
 
+        this.tvExparationDate = findViewById(R.id.tv_expiration_date);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        this.tvExparationDate.setText(format.format(myOwnPublicKey.getExpirationDate()));
+
+        this.ibCloseActivity = findViewById(R.id.imageButton_close);
+        this.ibCloseActivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         // Todo Save URI
-        this.ivAliasPic = findViewById(R.id.imageView_alias_pic);
-        ivAliasPic.setOnClickListener(new View.OnClickListener() {
+        this.ivAvatar = findViewById(R.id.imageView_avatar);
+        ivAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pickFromGallery();
@@ -87,12 +98,11 @@ public class IdentityActivity extends AppCompatActivity {
     }
 
     private void setAlias() {
-        this.tvAlias =  findViewById(R.id.tv_alias_identity_activity);
-        this.tvAlias.setText(storage.getAlias());
+        this.tvAlias = findViewById(R.id.tv_alias_identity_activity);
+        this.tvAlias.setText(myOwnPublicKey.getAlias());
     }
 
 
-    // Todo Dialog more generic
     public void changeAliasDialog() {
         LayoutInflater inflater = this.getLayoutInflater();
         View viewInflated = inflater.inflate(R.layout.dialog_set_alias, null);
@@ -105,8 +115,7 @@ public class IdentityActivity extends AppCompatActivity {
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        storage.setAlias(aliasiInput.getText().toString());
-                        setAlias();
+                        changeAlias(aliasiInput.getText().toString());
                     }
                 })
                 .setNegativeButton("No", null)
@@ -114,29 +123,30 @@ public class IdentityActivity extends AppCompatActivity {
                 .show();
     }
 
+    private void changeAlias(String newAlias) {
+        this.myOwnPublicKey.setAlias(newAlias);
+        storage.addMyOwnPublicKey(this.myOwnPublicKey);
+        this.tvAlias.setText(myOwnPublicKey.getAlias());
+    }
+
     private void pickFromGallery() {
-        //Create an Intent with action as ACTION_PICK
         Intent intent = new Intent(Intent.ACTION_PICK);
-        // Sets the type as image/*. This ensures only components of type image are selected
         intent.setType("image/*");
-        //We pass an extra array with the accepted mime types. This will ensure only components with these MIME types as targeted.
         String[] mimeTypes = {"image/jpeg", "image/png"};
         intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-        // Launching the Intent
         startActivityForResult(intent, GALLERY_REQUEST_CODE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // Result code is RESULT_OK only if the user selects an Image
         if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
                 case GALLERY_REQUEST_CODE:
                     selectedImage = data.getData();
                     try {
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                        ivAliasPic.setImageBitmap(bitmap);
+                        ivAvatar.setImageBitmap(bitmap);
                         SharedPreferencesHandler sharedPreferencesHandler = new SharedPreferencesHandler(this.getApplicationContext());
                     } catch (IOException e) {
                         e.printStackTrace();

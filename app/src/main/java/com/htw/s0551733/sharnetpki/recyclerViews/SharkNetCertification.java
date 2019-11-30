@@ -9,6 +9,7 @@ import com.google.gson.annotations.SerializedName;
 import java.io.IOException;
 import java.io.Serializable;
 import java.security.cert.Certificate;
+import java.util.Objects;
 
 import main.de.htw.berlin.s0551733.sharknetpki.SharknetCertificate;
 import main.de.htw.berlin.s0551733.sharknetpki.User;
@@ -81,4 +82,9 @@ public class SharkNetCertification implements Serializable, Comparable<SharkNetC
         }
         return result;
     }
+
+    public int hashCode() {
+        return Objects.hash(getUuid());
+    }
+
 }

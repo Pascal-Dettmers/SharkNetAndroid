@@ -15,7 +15,7 @@ import com.google.android.material.navigation.NavigationView;
 
 
 public class BottomNavigatorFragment extends com.google.android.material.bottomsheet.BottomSheetDialogFragment {
-    NavigationView navigationView;
+    private NavigationView navigationView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -35,7 +35,7 @@ public class BottomNavigatorFragment extends com.google.android.material.bottoms
                 switch (item.getItemId()) {
                     case R.id.identity_view:
                         startActivity(new Intent(getActivity(), IdentityActivity.class));
-                        Toast.makeText(getContext(), "Identity View", Toast.LENGTH_SHORT).show();
+                        dismiss();
                         break;
                     case R.id.settings_view:
                         Toast.makeText(getContext(), "Settings View", Toast.LENGTH_SHORT).show();

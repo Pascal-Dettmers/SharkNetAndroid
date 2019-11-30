@@ -20,6 +20,7 @@ import java.security.cert.Certificate;
 import java.security.spec.MGF1ParameterSpec;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -36,7 +37,7 @@ import timber.log.Timber;
 /**
  * Pure Android Implementation of a SharkNetPKI
  */
-public final class RSAKeystoreHandler implements KeystoreHandler, PKI {
+public final class RSAKeystoreHandler implements PKI {
 
     private static RSAKeystoreHandler rsaKeystoreHandler = null;
 
@@ -59,8 +60,8 @@ public final class RSAKeystoreHandler implements KeystoreHandler, PKI {
 
     private final static String AndroidKeyStore = "AndroidKeyStore";
 
-    private Set<SharknetPublicKey> sharknetPublicKeys;
-    private Set<SharknetCertificate> sharknetCertificates;
+    private HashSet<SharknetPublicKey> sharknetPublicKeys;
+    private HashSet<SharknetCertificate> sharknetCertificates;
 
     private RSAKeystoreHandler() {
         setupKeystore();
@@ -291,6 +292,16 @@ public final class RSAKeystoreHandler implements KeystoreHandler, PKI {
         return wantedKey;    }
 
     @Override
+    public HashSet<SharknetPublicKey> getPublicKeys() {
+        return this.sharknetPublicKeys;
+    }
+
+    @Override
+    public HashSet<SharknetCertificate> getCertificates() {
+        return this.sharknetCertificates;
+    }
+
+    @Override
     public Certificate getCertificate(String uuid) {
         Certificate wantedCertificate = null;
         for (SharknetCertificate cert : sharknetCertificates) {
@@ -304,6 +315,11 @@ public final class RSAKeystoreHandler implements KeystoreHandler, PKI {
     @Override
     public void addCertificate(SharknetCertificate sharknetCertificate) {
         sharknetCertificates.add(sharknetCertificate);
+    }
+
+    @Override
+    public void addPublicKey(SharknetPublicKey sharknetPublicKey) {
+        this.sharknetPublicKeys.add(sharknetPublicKey);
     }
 
     @Override
@@ -328,5 +344,15 @@ public final class RSAKeystoreHandler implements KeystoreHandler, PKI {
                 return !result; }
         }
         return result;
+    }
+
+    @Override
+    public void removePublicKey(SharknetPublicKey sharknetPublicKey) {
+        this.sharknetPublicKeys.remove(sharknetPublicKey);
+    }
+
+    @Override
+    public void removeCertificate(SharknetCertificate sharknetCertificate) {
+        this.sharknetCertificates.remove(sharknetCertificate);
     }
 }

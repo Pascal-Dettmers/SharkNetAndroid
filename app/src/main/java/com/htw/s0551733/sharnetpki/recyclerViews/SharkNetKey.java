@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.security.PublicKey;
 import java.util.Date;
+import java.util.Objects;
 
 import main.de.htw.berlin.s0551733.sharknetpki.SharknetPublicKey;
 
@@ -26,7 +27,7 @@ public class SharkNetKey implements Serializable, Comparable<SharkNetKey>, Shark
     @SerializedName("publicKeyInBase64")
     private String publicKeyInBase64;
 
-    @SerializedName("publicKeyInBase64")
+    @SerializedName("expirationDate")
     private Date expirationDate;
 
     public SharkNetKey(String alias, String uuid, String publicKeyInBase64, Date expirationDate) {
@@ -38,6 +39,11 @@ public class SharkNetKey implements Serializable, Comparable<SharkNetKey>, Shark
 
     public String getAlias() {
         return alias;
+    }
+
+    @Override
+    public void setAlias(String newAlias) {
+        this.alias = newAlias;
     }
 
     public String getUuid() {
@@ -76,5 +82,10 @@ public class SharkNetKey implements Serializable, Comparable<SharkNetKey>, Shark
             result = pojo.uuid.equals(this.uuid);
         }
         return result;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid);
     }
 }

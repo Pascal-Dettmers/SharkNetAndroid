@@ -1,5 +1,6 @@
 package com.htw.s0551733.sharnetpki.recyclerViews.adapter;
 
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,47 +10,46 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.htw.s0551733.sharnetpki.R;
-import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetKey;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
+import main.de.htw.berlin.s0551733.sharknetpki.SharknetPublicKey;
 
 public class PublicKeyRecyclerAdapter extends RecyclerView.Adapter<PublicKeyRecyclerAdapter.CustomViewHolder> {
 
-    public static class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class CustomViewHolder extends RecyclerView.ViewHolder {
         TextView alias;
-        OnKeyListener onKeyListener;
+        TextView publicKey;
 
-        public CustomViewHolder(View itemView, OnKeyListener onKeyListener) {
+        public CustomViewHolder(View itemView) {
             super(itemView);
             this.alias = itemView.findViewById(R.id.tvKeyAlias);
-            this.onKeyListener = onKeyListener;
-            itemView.setOnClickListener(this);
+            this.publicKey = itemView.findViewById(R.id.text_view_public_key);
         }
 
-        @Override
-        public void onClick(View v) {
-            onKeyListener.onKeyClick(getAdapterPosition());
-        }
     }
 
-    private ArrayList<SharkNetKey> data;
-    private OnKeyListener onKeyListener;
+    private HashSet<SharknetPublicKey> data;
 
-    public PublicKeyRecyclerAdapter(ArrayList<SharkNetKey> data, OnKeyListener onKeyListener) {
+    public PublicKeyRecyclerAdapter(HashSet<SharknetPublicKey> data) {
         this.data = data;
-        this.onKeyListener = onKeyListener;
     }
 
     @NonNull
     @Override
     public CustomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new CustomViewHolder(
-                LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_layout_public_key_fragment, parent, false), this.onKeyListener);
+                LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_layout_public_key_fragment, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
-        holder.alias.setText(data.get(position).getAlias());
+        List<SharknetPublicKey> dataList = new ArrayList<>(data);
+        holder.alias.setText(dataList.get(position).getAlias());
+        String publicKeyEncodedToString = Base64.encodeToString(dataList.get(position).getPublicKey().getEncoded(), Base64.DEFAULT);
+        holder.publicKey.setText(publicKeyEncodedToString.substring(44));
     }
 
     @Override
@@ -57,7 +57,4 @@ public class PublicKeyRecyclerAdapter extends RecyclerView.Adapter<PublicKeyRecy
         return data.size();
     }
 
-    public interface OnKeyListener {
-        void onKeyClick(int position);
-    }
 }
