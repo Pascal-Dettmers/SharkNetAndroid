@@ -33,6 +33,7 @@ import com.htw.s0551733.sharnetpki.util.Constants;
 import com.htw.s0551733.sharnetpki.util.SharedPreferencesHandler;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.security.KeyStoreException;
