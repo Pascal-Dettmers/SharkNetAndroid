@@ -176,7 +176,6 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
 
 
         new MaterialAlertDialogBuilder(this)
-                .setTitle("Alias")
                 .setMessage("Set your Alias")
                 .setView(viewInflated)
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -185,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
                         generateMyOwnSharkNetPublicKey(aliasInput.getText().toString());
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         generateMyOwnSharkNetPublicKey("Mustermann");
@@ -206,8 +205,15 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
         }
 
         try {
+            //init PKI
             char[] keystorePW = getKeystorePW().toCharArray();
             SharkNetPKI.init(keystorePW, inputStream, publicKeySet, certificateSet);
+            //persist key for the first time
+            if (this.inputStream == null) {
+                OutputStream outputStream = openFileOutput("keystore.pksc12", Context.MODE_PRIVATE);
+                SharkNetPKI.getInstance().persistKeyStore(outputStream);
+            }
+
         } catch (SharkNetException | ClassNotFoundException | IOException e) {
             e.printStackTrace();
         }
