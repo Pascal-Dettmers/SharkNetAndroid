@@ -12,17 +12,15 @@ import java.security.PublicKey;
 import java.util.Date;
 import java.util.Objects;
 
-import main.de.htw.berlin.s0551733.sharknetpki.SharknetPublicKey;
+import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetPublicKey;
+import main.de.htw.berlin.s0551733.sharknetpki.interfaces.User;
 
 import static com.htw.s0551733.sharnetpki.util.SerializationHelper.byteToObj;
 
-public class SharkNetKey implements Serializable, Comparable<SharkNetKey>, SharknetPublicKey {
+public class SharkNetKey implements Serializable, Comparable<SharkNetKey>, SharkNetPublicKey {
 
-    @SerializedName("alias")
-    private String alias;
-
-    @SerializedName("uuid")
-    private String uuid;
+    @SerializedName("user")
+    private SharkNetUser user;
 
     @SerializedName("publicKeyInBase64")
     private String publicKeyInBase64;
@@ -30,24 +28,22 @@ public class SharkNetKey implements Serializable, Comparable<SharkNetKey>, Shark
     @SerializedName("expirationDate")
     private Date expirationDate;
 
-    public SharkNetKey(String alias, String uuid, String publicKeyInBase64, Date expirationDate) {
-        this.alias = alias;
-        this.uuid = uuid;
+
+
+    public SharkNetKey(SharkNetUser user, String publicKeyInBase64, Date expirationDate) {
+        this.user = user;
         this.publicKeyInBase64 = publicKeyInBase64;
         this.expirationDate = expirationDate;
     }
 
-    public String getAlias() {
-        return alias;
+    @Override
+    public User getOwner() {
+        return this.user;
     }
 
     @Override
-    public void setAlias(String newAlias) {
-        this.alias = newAlias;
-    }
-
-    public String getUuid() {
-        return uuid;
+    public void setAlias(String s) {
+        this.user.setAlias(s);
     }
 
     @Override
@@ -69,7 +65,7 @@ public class SharkNetKey implements Serializable, Comparable<SharkNetKey>, Shark
 
     @Override
     public int compareTo(@NonNull SharkNetKey o) {
-        return this.uuid.compareTo(o.uuid);
+        return this.user.getUuid().compareTo(o.user.getUuid());
     }
 
 
@@ -79,13 +75,33 @@ public class SharkNetKey implements Serializable, Comparable<SharkNetKey>, Shark
 
         if (obj instanceof SharkNetKey) {
             SharkNetKey pojo = (SharkNetKey) obj;
-            result = pojo.uuid.equals(this.uuid);
+            result = pojo.user.getUuid().equals(this.user.getUuid());
         }
         return result;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uuid);
+        return Objects.hash(this.user.getUuid());
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(SharkNetUser user) {
+        this.user = user;
+    }
+
+    public String getPublicKeyInBase64() {
+        return publicKeyInBase64;
+    }
+
+    public void setPublicKeyInBase64(String publicKeyInBase64) {
+        this.publicKeyInBase64 = publicKeyInBase64;
+    }
+
+    public void setExpirationDate(Date expirationDate) {
+        this.expirationDate = expirationDate;
     }
 }

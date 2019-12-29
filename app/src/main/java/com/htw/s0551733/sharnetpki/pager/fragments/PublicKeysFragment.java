@@ -13,20 +13,21 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.htw.s0551733.sharnetpki.R;
-import com.htw.s0551733.sharnetpki.nfc.receive.NFCCallback;
+import com.htw.s0551733.sharnetpki.nfc.receive.NfcCallback;
 import com.htw.s0551733.sharnetpki.recyclerViews.adapter.PublicKeyRecyclerAdapter;
 
 import java.util.HashSet;
+import java.util.Set;
 
-import main.de.htw.berlin.s0551733.sharknetpki.SharknetPublicKey;
-import main.de.htw.berlin.s0551733.sharknetpki.impl.SharknetPKI;
+import main.de.htw.berlin.s0551733.sharknetpki.SharkNetPKI;
+import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetPublicKey;
 
-public class PublicKeysFragment extends Fragment implements NFCCallback {
+public class PublicKeysFragment extends Fragment implements NfcCallback {
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter recyclerViewAdapter;
     private LinearLayoutManager layoutManager;
-    HashSet<SharknetPublicKey> sharkNetKeys;
+    HashSet<SharkNetPublicKey> sharkNetKeys;
 
     public static final String TAG = "PublicKeysFragment";
 
@@ -70,7 +71,7 @@ public class PublicKeysFragment extends Fragment implements NFCCallback {
     }
 
     private void initRecyclerViewAdapter() {
-        this.sharkNetKeys = SharknetPKI.getInstance().getPublicKeys();
+        this.sharkNetKeys = SharkNetPKI.getInstance().getSharkNetPublicKeys();
         if (sharkNetKeys != null) {
             recyclerViewAdapter = new PublicKeyRecyclerAdapter(this.sharkNetKeys);
             recyclerView.setAdapter(recyclerViewAdapter);
@@ -86,7 +87,7 @@ public class PublicKeysFragment extends Fragment implements NFCCallback {
     }
 
     public void updateRecyclerView() {
-        HashSet<SharknetPublicKey> updatedKeyList = SharknetPKI.getInstance().getPublicKeys();
+        HashSet<SharkNetPublicKey> updatedKeyList = SharkNetPKI.getInstance().getSharkNetPublicKeys();
 //        this.sharkNetKeys.clear();
         this.sharkNetKeys.addAll(updatedKeyList);
         this.recyclerViewAdapter.notifyDataSetChanged();

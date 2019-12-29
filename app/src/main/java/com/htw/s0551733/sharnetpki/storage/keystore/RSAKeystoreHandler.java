@@ -4,6 +4,8 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Log;
 
+import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetUser;
+
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPairGenerator;
@@ -22,22 +24,21 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 
-import main.de.htw.berlin.s0551733.sharknetpki.PKI;
-import main.de.htw.berlin.s0551733.sharknetpki.SharknetCertificate;
-import main.de.htw.berlin.s0551733.sharknetpki.SharknetPublicKey;
-import main.de.htw.berlin.s0551733.sharknetpki.impl.SharkNetUser;
+import main.de.htw.berlin.s0551733.sharknetpki.interfaces.PKI;
+import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetCertificate;
+import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetPublicKey;
 import timber.log.Timber;
 
 /**
  * Pure Android Implementation of a SharkNetPKI
  */
-public final class RSAKeystoreHandler implements PKI {
+//public final class RSAKeystoreHandler implements PKI {
+public final class RSAKeystoreHandler  {
 
     private static RSAKeystoreHandler rsaKeystoreHandler = null;
 
@@ -60,8 +61,8 @@ public final class RSAKeystoreHandler implements PKI {
 
     private final static String AndroidKeyStore = "AndroidKeyStore";
 
-    private HashSet<SharknetPublicKey> sharknetPublicKeys;
-    private HashSet<SharknetCertificate> sharknetCertificates;
+    private HashSet<SharkNetPublicKey> sharknetPublicKeys;
+    private HashSet<SharkNetCertificate> sharknetCertificates;
 
     private RSAKeystoreHandler() {
         setupKeystore();
@@ -260,99 +261,102 @@ public final class RSAKeystoreHandler implements PKI {
 
     }
 
-    @Override
-    public List<SharkNetUser> getUsers() {
-        final List<SharkNetUser> users = new ArrayList<>();
-        for (SharknetPublicKey key : sharknetPublicKeys) {
-            users.add(new SharkNetUser(key.getUuid(), key.getAlias()));
-        }
-        for (SharknetCertificate cert : sharknetCertificates) {
-            users.add(new SharkNetUser(cert.getUuid(), cert.getAlias()));
-        }
-        return users;
-    }
-
-    @Override
-    public PublicKey getPublicKey(String uuid) {
-        PublicKey wantedKey = null;
-        for (SharknetPublicKey key : sharknetPublicKeys) {
-            if (key.getUuid().equals(uuid)) {
-                wantedKey = key.getPublicKey();
-                break;
-            }
-        }
-        if (wantedKey == null) {
-            for (SharknetCertificate cert : sharknetCertificates) {
-                if (cert.getUuid().equals(uuid)) {
-                    wantedKey = cert.getCertificate().getPublicKey();
-                    break;
-                }
-            }
-        }
-        return wantedKey;    }
-
-    @Override
-    public HashSet<SharknetPublicKey> getPublicKeys() {
-        return this.sharknetPublicKeys;
-    }
-
-    @Override
-    public HashSet<SharknetCertificate> getCertificates() {
-        return this.sharknetCertificates;
-    }
-
-    @Override
-    public Certificate getCertificate(String uuid) {
-        Certificate wantedCertificate = null;
-        for (SharknetCertificate cert : sharknetCertificates) {
-            if (cert.getUuid().equals(uuid)) {
-                wantedCertificate = cert.getCertificate();
-                break;
-            }
-        }
-        return wantedCertificate;    }
-
-    @Override
-    public void addCertificate(SharknetCertificate sharknetCertificate) {
-        sharknetCertificates.add(sharknetCertificate);
-    }
-
-    @Override
-    public void addPublicKey(SharknetPublicKey sharknetPublicKey) {
-        this.sharknetPublicKeys.add(sharknetPublicKey);
-    }
-
-    @Override
-    public PublicKey getMyOwnPublicKey() throws KeyStoreException {
-        return getPublicKey();
-    }
-
-    @Override
-    public boolean verifySignature(Certificate certToVerify, PublicKey potentialSignerPublicKey) {
-        boolean result = true;
-        try {
-            certToVerify.verify(potentialSignerPublicKey);
-        } catch (Exception e) {
-            if (e instanceof InvalidKeyException) {
-                System.out.println("wrong Key");
-                return !result;
-            }
-            if (e instanceof SignatureException) {
-                System.out.println("Signature error");
-                return !result;
-            } else {
-                return !result; }
-        }
-        return result;
-    }
-
-    @Override
-    public void removePublicKey(SharknetPublicKey sharknetPublicKey) {
-        this.sharknetPublicKeys.remove(sharknetPublicKey);
-    }
-
-    @Override
-    public void removeCertificate(SharknetCertificate sharknetCertificate) {
-        this.sharknetCertificates.remove(sharknetCertificate);
-    }
+//    @Override
+//    public List<SharkNetUser> getUsers() {
+//        final List<SharkNetUser> users = new ArrayList<>();
+//        for (SharkNetPublicKey key : sharknetPublicKeys) {
+//            users.add(new SharkNetUser(key.getUuid(), key.getAlias()));
+//        }
+//        for (SharkNetCertificate cert : sharknetCertificates) {
+//            users.add(new SharkNetUser(cert.getUuid(), cert.getAlias()));
+//        }
+//        return users;
+//    }
+//
+//    @Override
+//    public PublicKey getPublicKey(String uuid) {
+//        PublicKey wantedKey = null;
+//        for (SharkNetPublicKey key : sharknetPublicKeys) {
+//            if (key.getUuid().equals(uuid)) {
+//                wantedKey = key.getPublicKey();
+//                break;
+//            }
+//        }
+//        if (wantedKey == null) {
+//            for (SharkNetCertificate cert : sharknetCertificates) {
+//                if (cert.getUuid().equals(uuid)) {
+//                    wantedKey = cert.getCertificate().getPublicKey();
+//                    break;
+//                }
+//            }
+//        }
+//        return wantedKey;
+//    }
+//
+//    @Override
+//    public HashSet<SharkNetPublicKey> getPublicKeys() {
+//        return this.sharknetPublicKeys;
+//    }
+//
+//    @Override
+//    public HashSet<SharkNetCertificate> getCertificates() {
+//        return this.sharknetCertificates;
+//    }
+//
+//    @Override
+//    public Certificate getCertificate(String uuid) {
+//        Certificate wantedCertificate = null;
+//        for (SharkNetCertificate cert : sharknetCertificates) {
+//            if (cert.getUuid().equals(uuid)) {
+//                wantedCertificate = cert.getCertificate();
+//                break;
+//            }
+//        }
+//        return wantedCertificate;
+//    }
+//
+//    @Override
+//    public void addCertificate(SharkNetCertificate sharknetCertificate) {
+//        sharknetCertificates.add(sharknetCertificate);
+//    }
+//
+//    @Override
+//    public void addPublicKey(SharkNetPublicKey sharknetPublicKey) {
+//        this.sharknetPublicKeys.add(sharknetPublicKey);
+//    }
+//
+//    @Override
+//    public PublicKey getMyOwnPublicKey() throws KeyStoreException {
+//        return getPublicKey();
+//    }
+//
+//    @Override
+//    public boolean verifySignature(Certificate certToVerify, PublicKey potentialSignerPublicKey) {
+//        boolean result = true;
+//        try {
+//            certToVerify.verify(potentialSignerPublicKey);
+//        } catch (Exception e) {
+//            if (e instanceof InvalidKeyException) {
+//                System.out.println("wrong Key");
+//                return !result;
+//            }
+//            if (e instanceof SignatureException) {
+//                System.out.println("Signature error");
+//                return !result;
+//            } else {
+//                return !result;
+//            }
+//        }
+//        return result;
+//    }
+//
+//    @Override
+//    public void removePublicKey(SharkNetPublicKey sharknetPublicKey) {
+//        this.sharknetPublicKeys.remove(sharknetPublicKey);
+//    }
+//
+//    @Override
+//    public void removeCertificate(SharkNetCertificate sharknetCertificate) {
+//        this.sharknetCertificates.remove(sharknetCertificate);
+//    }
 }

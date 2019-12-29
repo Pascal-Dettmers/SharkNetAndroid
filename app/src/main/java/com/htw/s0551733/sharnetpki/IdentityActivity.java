@@ -19,13 +19,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetKey;
 import com.htw.s0551733.sharnetpki.storage.datastore.DataStorage;
 import com.htw.s0551733.sharnetpki.util.SharedPreferencesHandler;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
-import main.de.htw.berlin.s0551733.sharknetpki.SharknetPublicKey;
+import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetPublicKey;
 
 public class IdentityActivity extends AppCompatActivity {
 
@@ -38,7 +39,7 @@ public class IdentityActivity extends AppCompatActivity {
     private ImageView ivAvatar;
     private DataStorage storage;
     private Uri selectedImage;
-    private SharknetPublicKey myOwnPublicKey;
+    private SharkNetKey myOwnPublicKey;
 
     /**
      * Intent Request Code
@@ -60,7 +61,7 @@ public class IdentityActivity extends AppCompatActivity {
         setAlias();
 
         this.tvUuid = findViewById(R.id.tv_uuid);
-        this.tvUuid.setText(myOwnPublicKey.getUuid());
+        this.tvUuid.setText(myOwnPublicKey.getOwner().getUuid());
 
         this.tvPublicKey = findViewById(R.id.tv_public_key);
         String publicKeyEncodedToString = Base64.encodeToString(myOwnPublicKey.getPublicKey().getEncoded(), Base64.DEFAULT);
@@ -99,7 +100,7 @@ public class IdentityActivity extends AppCompatActivity {
 
     private void setAlias() {
         this.tvAlias = findViewById(R.id.tv_alias_identity_activity);
-        this.tvAlias.setText(myOwnPublicKey.getAlias());
+        this.tvAlias.setText(myOwnPublicKey.getOwner().getAlias());
     }
 
 
@@ -126,7 +127,7 @@ public class IdentityActivity extends AppCompatActivity {
     private void changeAlias(String newAlias) {
         this.myOwnPublicKey.setAlias(newAlias);
         storage.addMyOwnPublicKey(this.myOwnPublicKey);
-        this.tvAlias.setText(myOwnPublicKey.getAlias());
+        this.tvAlias.setText(myOwnPublicKey.getOwner().getAlias());
     }
 
     private void pickFromGallery() {

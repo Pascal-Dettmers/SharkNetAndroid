@@ -52,7 +52,7 @@ public class CertificationRecyclerAdapter extends RecyclerView.Adapter<Certifica
 
     @Override
     public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
-        holder.alias.setText(data.get(position).getAlias());
+        holder.alias.setText(data.get(position).getSubject().getAlias());
         holder.signer.setText(data.get(position).getSigner().getAlias());
     }
 

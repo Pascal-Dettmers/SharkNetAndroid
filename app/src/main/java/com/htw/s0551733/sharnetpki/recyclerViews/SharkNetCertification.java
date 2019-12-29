@@ -11,38 +11,32 @@ import java.io.Serializable;
 import java.security.cert.Certificate;
 import java.util.Objects;
 
-import main.de.htw.berlin.s0551733.sharknetpki.SharknetCertificate;
-import main.de.htw.berlin.s0551733.sharknetpki.User;
+import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetCertificate;
+import main.de.htw.berlin.s0551733.sharknetpki.interfaces.User;
 
 import static com.htw.s0551733.sharnetpki.util.SerializationHelper.byteToObj;
 
-public class SharkNetCertification implements Serializable, Comparable<SharkNetCertification>, SharknetCertificate {
+public class SharkNetCertification implements Serializable, Comparable<SharkNetCertification>, SharkNetCertificate {
 
-    @SerializedName("alias")
-    private String alias;
-
-    @SerializedName("uuid")
-    private String uuid;
+    @SerializedName("subject")
+    private SharkNetUser subject;
 
     @SerializedName("certInBase64")
     private String certInBase64;
 
     @SerializedName("signer")
-    private User signer;
+    private SharkNetUser signer;
 
-    public SharkNetCertification(String alias, String uuid, String certInBase64, User signer) {
-        this.alias = alias;
-        this.uuid = uuid;
+
+    public SharkNetCertification(SharkNetUser subject, String certInBase64, SharkNetUser signer) {
+        this.subject = subject;
         this.certInBase64 = certInBase64;
         this.signer = signer;
     }
 
-    public String getAlias() {
-        return alias;
-    }
-
-    public String getUuid() {
-        return uuid;
+    @Override
+    public User getSubject() {
+        return this.subject;
     }
 
     @Override
@@ -50,9 +44,7 @@ public class SharkNetCertification implements Serializable, Comparable<SharkNetC
         Certificate certificate = null;
         try {
             certificate = (Certificate) byteToObj(Base64.decode(certInBase64, Base64.DEFAULT));
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
@@ -60,16 +52,16 @@ public class SharkNetCertification implements Serializable, Comparable<SharkNetC
     }
 
     public String getCertInBase64() {
-        return certInBase64;
+        return this.certInBase64;
     }
 
     public User getSigner() {
-        return (User) signer;
+        return this.signer;
     }
 
     @Override
     public int compareTo(@NonNull SharkNetCertification o) {
-        return this.uuid.compareTo(o.uuid);
+        return this.subject.getUuid().compareTo(o.subject.getUuid());
     }
 
     @Override
@@ -78,13 +70,24 @@ public class SharkNetCertification implements Serializable, Comparable<SharkNetC
 
         if (obj instanceof SharkNetCertification) {
             SharkNetCertification pojo = (SharkNetCertification) obj;
-            result = pojo.uuid.equals(this.uuid);
+            result = pojo.subject.getUuid().equals(this.subject.getUuid());
         }
         return result;
     }
 
     public int hashCode() {
-        return Objects.hash(getUuid());
+        return Objects.hash(subject.getUuid());
     }
 
+    public void setSubject(SharkNetUser subject) {
+        this.subject = subject;
+    }
+
+    public void setCertInBase64(String certInBase64) {
+        this.certInBase64 = certInBase64;
+    }
+
+    public void setSigner(SharkNetUser signer) {
+        this.signer = signer;
+    }
 }

@@ -9,13 +9,12 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_app_icon_144dp"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/ic_app_icon_144dp"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity android:name=".IdentityActivity" />
         <activity
             android:name=".MainActivity"
             android:theme="@style/AppTheme.Launcher">
@@ -29,6 +28,7 @@
                 <data android:mimeType="application/net.sharksystem.send.public.key" />
             </intent-filter>
         </activity>
+        <activity android:name=".IdentityActivity" />
     </application>
 
 </manifest>

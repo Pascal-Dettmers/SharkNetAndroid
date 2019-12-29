@@ -13,7 +13,7 @@
 
     <!-- Splash Screen -->
     <style name="AppTheme.Launcher">
-        <item name="android:windowBackground">@drawable/ic_splash_screen_white_64dp</item>
+        <item name="android:windowBackground">@drawable/ic_splash_xhdpi_720x960</item>
     </style>
 
 <!--    <style name="AppTheme.NoActionBar">-->

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import main.de.htw.berlin.s0551733.sharknetpki.SharknetPublicKey;
+import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetPublicKey;
 
 public class PublicKeyRecyclerAdapter extends RecyclerView.Adapter<PublicKeyRecyclerAdapter.CustomViewHolder> {
 
@@ -31,9 +31,9 @@ public class PublicKeyRecyclerAdapter extends RecyclerView.Adapter<PublicKeyRecy
 
     }
 
-    private HashSet<SharknetPublicKey> data;
+    private HashSet<SharkNetPublicKey> data;
 
-    public PublicKeyRecyclerAdapter(HashSet<SharknetPublicKey> data) {
+    public PublicKeyRecyclerAdapter(HashSet<SharkNetPublicKey> data) {
         this.data = data;
     }
 
@@ -46,8 +46,8 @@ public class PublicKeyRecyclerAdapter extends RecyclerView.Adapter<PublicKeyRecy
 
     @Override
     public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
-        List<SharknetPublicKey> dataList = new ArrayList<>(data);
-        holder.alias.setText(dataList.get(position).getAlias());
+        List<SharkNetPublicKey> dataList = new ArrayList<>(data);
+        holder.alias.setText(dataList.get(position).getOwner().getAlias());
         String publicKeyEncodedToString = Base64.encodeToString(dataList.get(position).getPublicKey().getEncoded(), Base64.DEFAULT);
         holder.publicKey.setText(publicKeyEncodedToString.substring(44));
     }

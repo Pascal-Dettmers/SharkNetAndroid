@@ -1,6 +1,6 @@
 package com.htw.s0551733.sharnetpki.nfc.receive;
 
-public interface NFCCallback {
+public interface NfcCallback {
 
     void onDataReceived();
 }

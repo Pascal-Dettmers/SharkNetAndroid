@@ -16,19 +16,19 @@ import com.htw.s0551733.sharnetpki.util.SharedPreferencesHandler;
 import java.io.IOException;
 import java.util.HashSet;
 
-import main.de.htw.berlin.s0551733.sharknetpki.SharknetPublicKey;
-import main.de.htw.berlin.s0551733.sharknetpki.impl.SharknetPKI;
+import main.de.htw.berlin.s0551733.sharknetpki.SharkNetPKI;
+import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetPublicKey;
 
 import static com.htw.s0551733.sharnetpki.util.SerializationHelper.byteToObj;
 
-public class ReceiveNFCDataActivity {
+public class NfcDataManager {
 
     private final String TAG = this.getClass().getSimpleName();
     private Context context;
     private DataStorage dataStorage;
-    private NFCCallback nfcCallback;
+    private NfcCallback nfcCallback;
 
-    public ReceiveNFCDataActivity(Context context, NFCCallback nfcCallback) {
+    public NfcDataManager(Context context, NfcCallback nfcCallback) {
         this.context = context;
         this.dataStorage = new DataStorage(new SharedPreferencesHandler(context));
         this.nfcCallback = nfcCallback;
@@ -47,7 +47,7 @@ public class ReceiveNFCDataActivity {
 
     private void processSendPublic(Intent intent) {
         Parcelable[] rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-        SharknetPublicKey receiveData = null;
+        SharkNetPublicKey receiveData = null;
 
         if (rawMessages != null) {
             NdefMessage[] messages = new NdefMessage[rawMessages.length];
@@ -58,7 +58,7 @@ public class ReceiveNFCDataActivity {
             byte[] receiveDataPayload = messages[0].getRecords()[0].getPayload();
 
             try {
-                receiveData = (SharknetPublicKey) byteToObj(receiveDataPayload);
+                receiveData = (SharkNetPublicKey) byteToObj(receiveDataPayload);
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -68,10 +68,10 @@ public class ReceiveNFCDataActivity {
         }
     }
 
-    private void showAlert(SharknetPublicKey receiveData) {
+    private void showAlert(SharkNetPublicKey receiveData) {
         new MaterialAlertDialogBuilder(context)
                 .setTitle("Authentication")
-                .setMessage("Do you really want to save this Key from " + receiveData.getAlias())
+                .setMessage("Do you really want to save this Key from " + receiveData.getOwner().getAlias())
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -83,13 +83,14 @@ public class ReceiveNFCDataActivity {
                 .show();
     }
 
-    private void persistData(SharknetPublicKey receivedData) {
+    private void persistData(SharkNetPublicKey receivedData) {
 
-        HashSet<SharknetPublicKey> keySet = SharknetPKI.getInstance().getPublicKeys();
+//        HashSet<SharkNetPublicKey> keySet = SharkNetPKI.getInstance().getSharkNetPublicKeys();
+        HashSet<SharkNetPublicKey> keySet = SharkNetPKI.getInstance().getSharkNetPublicKeys();
         if (!keySet.contains(receivedData)) {
-            SharknetPKI.getInstance().addPublicKey(receivedData);
-            dataStorage.addKeySet(SharknetPKI.getInstance().getPublicKeys());
-            HashSet<SharknetPublicKey> publicKeys = SharknetPKI.getInstance().getPublicKeys();
+            SharkNetPKI.getInstance().addPublicKey(receivedData);
+            dataStorage.addKeySet(SharkNetPKI.getInstance().getSharkNetPublicKeys());
+            HashSet<SharkNetPublicKey> publicKeys = SharkNetPKI.getInstance().getSharkNetPublicKeys();
             Log.d(TAG, "persistData: " + publicKeys.size());
             nfcCallback.onDataReceived();
         }
