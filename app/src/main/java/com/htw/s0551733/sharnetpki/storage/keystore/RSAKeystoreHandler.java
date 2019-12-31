@@ -267,7 +267,7 @@ public final class RSAKeystoreHandler  {
 //        for (SharkNetPublicKey key : sharknetPublicKeys) {
 //            users.add(new SharkNetUser(key.getUuid(), key.getAlias()));
 //        }
-//        for (SharkNetCertificate cert : sharknetCertificates) {
+//        for (SharkNetCert cert : sharknetCertificates) {
 //            users.add(new SharkNetUser(cert.getUuid(), cert.getAlias()));
 //        }
 //        return users;
@@ -283,7 +283,7 @@ public final class RSAKeystoreHandler  {
 //            }
 //        }
 //        if (wantedKey == null) {
-//            for (SharkNetCertificate cert : sharknetCertificates) {
+//            for (SharkNetCert cert : sharknetCertificates) {
 //                if (cert.getUuid().equals(uuid)) {
 //                    wantedKey = cert.getCertificate().getPublicKey();
 //                    break;
@@ -299,14 +299,14 @@ public final class RSAKeystoreHandler  {
 //    }
 //
 //    @Override
-//    public HashSet<SharkNetCertificate> getCertificates() {
+//    public HashSet<SharkNetCert> getCertificates() {
 //        return this.sharknetCertificates;
 //    }
 //
 //    @Override
 //    public Certificate getCertificate(String uuid) {
 //        Certificate wantedCertificate = null;
-//        for (SharkNetCertificate cert : sharknetCertificates) {
+//        for (SharkNetCert cert : sharknetCertificates) {
 //            if (cert.getUuid().equals(uuid)) {
 //                wantedCertificate = cert.getCertificate();
 //                break;
@@ -316,7 +316,7 @@ public final class RSAKeystoreHandler  {
 //    }
 //
 //    @Override
-//    public void addCertificate(SharkNetCertificate sharknetCertificate) {
+//    public void addCertificate(SharkNetCert sharknetCertificate) {
 //        sharknetCertificates.add(sharknetCertificate);
 //    }
 //
@@ -356,7 +356,7 @@ public final class RSAKeystoreHandler  {
 //    }
 //
 //    @Override
-//    public void removeCertificate(SharkNetCertificate sharknetCertificate) {
+//    public void removeCertificate(SharkNetCert sharknetCertificate) {
 //        this.sharknetCertificates.remove(sharknetCertificate);
 //    }
 }

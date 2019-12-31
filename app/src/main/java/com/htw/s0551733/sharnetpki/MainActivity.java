@@ -26,10 +26,10 @@ import com.htw.s0551733.sharnetpki.nfc.NfcMessageManager;
 import com.htw.s0551733.sharnetpki.nfc.receive.NfcCallback;
 import com.htw.s0551733.sharnetpki.nfc.receive.NfcDataManager;
 import com.htw.s0551733.sharnetpki.pager.SharkNetPagerAdapter;
+import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetCert;
 import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetKey;
 import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetUser;
 import com.htw.s0551733.sharnetpki.storage.datastore.DataStorage;
-import com.htw.s0551733.sharnetpki.storage.keystore.RSAKeystoreHandler;
 import com.htw.s0551733.sharnetpki.util.Constants;
 import com.htw.s0551733.sharnetpki.util.SharedPreferencesHandler;
 
@@ -39,7 +39,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.security.KeyStoreException;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.UUID;
@@ -49,7 +52,6 @@ import main.de.htw.berlin.s0551733.sharknetpki.impl.SharkNetException;
 import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetCertificate;
 import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetPublicKey;
 
-import static com.htw.s0551733.sharnetpki.util.SerializationHelper.byteToObj;
 import static com.htw.s0551733.sharnetpki.util.SerializationHelper.objToByte;
 
 public class MainActivity extends AppCompatActivity implements NfcCallback {
@@ -126,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
             @Override
             public void onClick(View v) {
                 try {
-                    setPushMessage();
+                    sendMyOwnPublicKey();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -195,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
     }
 
     private void initPKI() {
-        HashSet<SharkNetPublicKey> publicKeySet = getPublicKeySet();
+        HashSet<SharkNetPublicKey> publicKeySet = storage.getKeySet();
         HashSet<SharkNetCertificate> certificateSet = new HashSet<>();
 
         try {
@@ -206,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
 
         try {
             //init PKI
-            char[] keystorePW = getKeystorePW().toCharArray();
+            char[] keystorePW = storage.getKeystorePassword().toCharArray();
             SharkNetPKI.init(keystorePW, inputStream, publicKeySet, certificateSet);
             //persist key for the first time
             if (this.inputStream == null) {
@@ -219,49 +221,16 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
         }
     }
 
-    private String getKeystorePW() throws IOException, ClassNotFoundException {
-        if (storage.getKeystorePassword() == null) {
-            String password = generateUUID(); // generate random string
-            byte[] passwordInBytes = objToByte(password);
-            byte[] encryptPassword = RSAKeystoreHandler.getInstance().encrypt(passwordInBytes);
-            String encryptPasswordInBase64 = Base64.encodeToString(encryptPassword, Base64.DEFAULT); // encode to base64 to store it
-            storage.addKeyStorePassword(encryptPasswordInBase64); // persist password
-            return password;
-        } else {
-            String encryptedKeystorePasswordInBase64 = storage.getKeystorePassword();
-            byte[] decodePassword = Base64.decode(encryptedKeystorePasswordInBase64, Base64.DEFAULT);
-            byte[] decryptPassword = RSAKeystoreHandler.getInstance().decrypt(decodePassword);
-            return (String) byteToObj(decryptPassword);
-        }
-    }
-
-// Todo what to do with certs?
-
-//    private HashSet<SharkNetCertificate> getCertificateSet() {
-//        sharedPreferencesHandler = new SharedPreferencesHandler(this.getApplicationContext());
-//        Gson gson = new Gson();
-//        Type typeOfCertificateList = new TypeToken<HashSet<SharkNetCertificate>>() {
-//        }.getType();
+    //todo cert in datastorage
+//    private HashSet<SharkNetCert> getCertificateSet() {
+//        HashSet<SharkNetPublicKey> keySet = storage.getKeySet();
 //
-//        String certificateListInJson = sharedPreferencesHandler.getValue(Constants.CERTIFICATE_LIST);
-//
-//        if (certificateListInJson != null) {
-//            return gson.<HashSet<SharkNetCertificate>>fromJson(certificateListInJson, typeOfCertificateList);
+//        if (keySet != null) {
+//            return keySet;
 //        } else {
 //            return new HashSet<>();
 //        }
 //    }
-
-    private HashSet<SharkNetPublicKey> getPublicKeySet() {
-        DataStorage dataStorage = new DataStorage(new SharedPreferencesHandler(this));
-        HashSet<SharkNetPublicKey> keySet = dataStorage.getKeySet();
-
-        if (keySet != null) {
-            return keySet;
-        } else {
-            return new HashSet<>();
-        }
-    }
 
     private void setUpTabLayout() {
         // Instantiate a ViewPager, SharkNetPagerAdapter and tabLayout.
@@ -274,14 +243,14 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
         Objects.requireNonNull(tabLayout.getTabAt(1)).setIcon(tabIcons[1]);
     }
 
-    private void setPushMessage() throws IOException {
+    private void sendMyOwnPublicKey() throws IOException {
         SharkNetPublicKey dataToSend = storage.getMyOwnPublicKey();
-        initNfcMessageManager(objToByte(dataToSend));
+        initNfcMessageManager(objToByte(dataToSend), Constants.PUBLIC_KEY_INTENT_FILTER);
     }
 
-    private void initNfcMessageManager(byte[] encodedSharkNetPublicKey) {
-        if (encodedSharkNetPublicKey != null) {
-            NfcMessageManager outcomingNfcCallback = new NfcMessageManager("application/net.sharksystem.send.public.key".getBytes(Charset.forName("US-ASCII")), encodedSharkNetPublicKey);
+    private void initNfcMessageManager(byte[] dataToSend, String intentFilter) {
+        if (dataToSend != null) {
+            NfcMessageManager outcomingNfcCallback = new NfcMessageManager(intentFilter.getBytes(Charset.forName("US-ASCII")), dataToSend);
             this.nfcAdapter.setOnNdefPushCompleteCallback(outcomingNfcCallback, this);
             this.nfcAdapter.setNdefPushMessageCallback(outcomingNfcCallback, this);
             this.nfcAdapter.invokeBeam(this);
@@ -289,6 +258,8 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 
     // Todo beschreiben in der Arbeit: https://stackoverflow.com/questions/26943935/what-does-enableforegrounddispatch-and-disableforegrounddispatch-do
     // enableForegroundDispatch gives your current foreground activity priority in receiving NFC events over all other actvities.
@@ -337,10 +308,20 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
     }
 
     @Override
-    public void onDataReceived() {
+    public void onPublicKeyReceived() {
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Succesfull")
-                .setMessage("Key was succesfull received!")
+                .setMessage("Key succesfull received!")
+                .setPositiveButton("Ok", null)
+                .setCancelable(false)
+                .show();
+    }
+
+    @Override
+    public void onCertificateReceived() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Succesfull")
+                .setMessage("Certificate succesfull received!")
                 .setPositiveButton("Ok", null)
                 .setCancelable(false)
                 .show();
@@ -355,5 +336,28 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
         } catch (IOException | SharkNetException e) {
             e.printStackTrace();
         }
+    }
+
+    public void sendReceivedPublicKeyAsCertificate(SharkNetPublicKey key) {
+        try {
+            SharkNetKey myOwnPublicKey = storage.getMyOwnPublicKey();
+            if (key.getExpirationDate().after(new Date())) {
+
+                // Generate X509 Certificate
+                PrivateKey privateKey = SharkNetPKI.getInstance().getPrivateKey();
+                X509Certificate x509Certificate = SharkNetPKI.getInstance().generateCertificate(key.getPublicKey(), privateKey, myOwnPublicKey.getOwner().getAlias(), key.getOwner().getAlias());
+                // Generate SharkNetCertificate
+                String certInBase64 = Base64.encodeToString(objToByte(x509Certificate), Base64.DEFAULT);
+                SharkNetUser sharkNetUser = new SharkNetUser(key.getOwner().getUuid(), key.getOwner().getAlias());
+                SharkNetCert certificate = new SharkNetCert(sharkNetUser, certInBase64, myOwnPublicKey.getSharkNetUser());
+                // setup NFC
+                initNfcMessageManager(objToByte(certificate), Constants.RECEIVED_PUBLIC_KEY_CERT_INTENT_FILTER);
+            } else {
+                Toast.makeText(this.getApplicationContext(), "This key is not valid anymore", Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }

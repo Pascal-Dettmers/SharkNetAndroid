@@ -13,9 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.htw.s0551733.sharnetpki.R;
-import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetCertification;
+import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetCert;
 import com.htw.s0551733.sharnetpki.recyclerViews.adapter.CertificationRecyclerAdapter;
-import com.htw.s0551733.sharnetpki.util.SharedPreferencesHandler;
 
 import java.util.ArrayList;
 
@@ -25,9 +24,8 @@ public class CertificationsFragment extends Fragment implements CertificationRec
     private RecyclerView recyclerView;
     private RecyclerView.Adapter recyclerViewAdapter;
     private LinearLayoutManager layoutManager;
-    SharedPreferencesHandler sharedPreferencesHandler;
 
-    ArrayList<SharkNetCertification> certList;
+    ArrayList<SharkNetCert> certList;
 
     public CertificationsFragment() {
         // Required empty public constructor

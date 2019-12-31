@@ -12,15 +12,21 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.htw.s0551733.sharnetpki.MainActivity;
 import com.htw.s0551733.sharnetpki.R;
 import com.htw.s0551733.sharnetpki.nfc.receive.NfcCallback;
 import com.htw.s0551733.sharnetpki.recyclerViews.adapter.PublicKeyRecyclerAdapter;
+import com.htw.s0551733.sharnetpki.recyclerViews.clickListener.ClickListener;
+import com.htw.s0551733.sharnetpki.storage.datastore.DataStorage;
+import com.htw.s0551733.sharnetpki.util.SharedPreferencesHandler;
 
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import main.de.htw.berlin.s0551733.sharknetpki.SharkNetPKI;
 import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetPublicKey;
+
 
 public class PublicKeysFragment extends Fragment implements NfcCallback {
 
@@ -28,6 +34,7 @@ public class PublicKeysFragment extends Fragment implements NfcCallback {
     private RecyclerView.Adapter recyclerViewAdapter;
     private LinearLayoutManager layoutManager;
     HashSet<SharkNetPublicKey> sharkNetKeys;
+    private DataStorage storage;
 
     public static final String TAG = "PublicKeysFragment";
 
@@ -58,6 +65,8 @@ public class PublicKeysFragment extends Fragment implements NfcCallback {
     }
 
     private void setUpRecyclerView(View view) {
+
+        storage = new DataStorage(new SharedPreferencesHandler(getActivity()));
         recyclerView = view.findViewById(R.id.fragment_public_key_tab_recycler_view);
         // improve performance
         recyclerView.setHasFixedSize(true);
@@ -72,11 +81,27 @@ public class PublicKeysFragment extends Fragment implements NfcCallback {
 
     private void initRecyclerViewAdapter() {
         this.sharkNetKeys = SharkNetPKI.getInstance().getSharkNetPublicKeys();
+//        this.sharkNetKeys = storage.getKeySet();
         if (sharkNetKeys != null) {
-            recyclerViewAdapter = new PublicKeyRecyclerAdapter(this.sharkNetKeys);
+            recyclerViewAdapter = new PublicKeyRecyclerAdapter(this.sharkNetKeys, new ClickListener() {
+                @Override
+                public void onSendClicked(int position) {
+                    List<SharkNetPublicKey> list = new ArrayList<>(sharkNetKeys);
+                    ((MainActivity)getActivity()).sendReceivedPublicKeyAsCertificate(list.get(position));
+                }
+
+                @Override
+                public void onDeleteClicked(int position) {
+                    List<SharkNetPublicKey> list = new ArrayList<>(sharkNetKeys);
+                    SharkNetPublicKey sharkNetPublicKey = list.get(position);
+                    storage.deleteSharkNetKey(sharkNetPublicKey);
+                    sharkNetKeys.remove(list.get(position));
+                    SharkNetPKI.getInstance().removePublicKey(list.get(position));
+                    updateRecyclerView();
+                }
+            });
             recyclerView.setAdapter(recyclerViewAdapter);
         } else {
-            // TODO dummy data
         }
     }
 
@@ -87,7 +112,7 @@ public class PublicKeysFragment extends Fragment implements NfcCallback {
     }
 
     public void updateRecyclerView() {
-        HashSet<SharkNetPublicKey> updatedKeyList = SharkNetPKI.getInstance().getSharkNetPublicKeys();
+        HashSet<SharkNetPublicKey> updatedKeyList = SharkNetPKI.getInstance().getSharkNetPublicKeys();;
 //        this.sharkNetKeys.clear();
         this.sharkNetKeys.addAll(updatedKeyList);
         this.recyclerViewAdapter.notifyDataSetChanged();
@@ -105,7 +130,12 @@ public class PublicKeysFragment extends Fragment implements NfcCallback {
 
 
     @Override
-    public void onDataReceived() {
+    public void onPublicKeyReceived() {
         updateRecyclerView();
+    }
+
+    @Override
+    public void onCertificateReceived() {
+
     }
 }

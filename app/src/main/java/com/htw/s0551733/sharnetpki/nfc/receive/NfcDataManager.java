@@ -11,12 +11,14 @@ import android.widget.Toast;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.htw.s0551733.sharnetpki.storage.datastore.DataStorage;
+import com.htw.s0551733.sharnetpki.util.Constants;
 import com.htw.s0551733.sharnetpki.util.SharedPreferencesHandler;
 
 import java.io.IOException;
 import java.util.HashSet;
 
 import main.de.htw.berlin.s0551733.sharknetpki.SharkNetPKI;
+import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetCertificate;
 import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetPublicKey;
 
 import static com.htw.s0551733.sharnetpki.util.SerializationHelper.byteToObj;
@@ -36,12 +38,42 @@ public class NfcDataManager {
 
     public void processIntent(Intent intent) {
 
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
-            if (intent.getType().equals("application/net.sharksystem.send.public.key")) {
-                processSendPublic(intent);
-            } else {
-                Log.d(TAG, "processIntent: Wrong intent type");
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction()) && intent.getType() != null) {
+
+            switch (intent.getType()) {
+                case Constants.PUBLIC_KEY_INTENT_FILTER:
+                    processSendPublic(intent);
+                    break;
+                case Constants.RECEIVED_PUBLIC_KEY_CERT_INTENT_FILTER:
+                    processSendCertificate(intent);
+                    break;
+                default:
+                        Log.d(TAG, "processIntent: Wrong intent type");
+
             }
+        }
+    }
+
+    private void processSendCertificate(Intent intent) {
+        Parcelable[] rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+        SharkNetCertificate receiveData = null;
+
+        if (rawMessages != null) {
+            NdefMessage[] messages = new NdefMessage[rawMessages.length];
+            for (int i = 0; i < rawMessages.length; i++) {
+                messages[i] = (NdefMessage) rawMessages[i];
+            }
+
+            byte[] receiveDataPayload = messages[0].getRecords()[0].getPayload();
+
+            try {
+                receiveData = (SharkNetCertificate) byteToObj(receiveDataPayload);
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            Toast.makeText(this.context, "beam successful", Toast.LENGTH_LONG).show();
+            showCertificateKeyAlert(receiveData);
         }
     }
 
@@ -64,18 +96,18 @@ public class NfcDataManager {
             }
 
             Toast.makeText(this.context, "beam successful", Toast.LENGTH_LONG).show();
-            showAlert(receiveData);
+            showPublicKeyAlert(receiveData);
         }
     }
 
-    private void showAlert(SharkNetPublicKey receiveData) {
+    private void showPublicKeyAlert(SharkNetPublicKey receiveData) {
         new MaterialAlertDialogBuilder(context)
                 .setTitle("Authentication")
                 .setMessage("Do you really want to save this Key from " + receiveData.getOwner().getAlias())
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        persistData(receiveData);
+                        persistPublicKey(receiveData);
                     }
                 })
                 .setNegativeButton("No", null)
@@ -83,16 +115,50 @@ public class NfcDataManager {
                 .show();
     }
 
-    private void persistData(SharkNetPublicKey receivedData) {
+    private void showCertificateKeyAlert(SharkNetCertificate receiveData) {
+        new MaterialAlertDialogBuilder(context)
+                .setTitle("Authentication")
+                .setMessage("Do you really want to save this Certificate for " + receiveData.getSubject().getAlias() + " signed by " + receiveData.getSigner().getAlias() + "?")
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        persistCertificate(receiveData);
+                    }
+                })
+                .setNegativeButton("No", null)
+                .setCancelable(false)
+                .show();
+    }
 
-//        HashSet<SharkNetPublicKey> keySet = SharkNetPKI.getInstance().getSharkNetPublicKeys();
+    private void persistPublicKey(SharkNetPublicKey receivedData) {
+
         HashSet<SharkNetPublicKey> keySet = SharkNetPKI.getInstance().getSharkNetPublicKeys();
+        HashSet<SharkNetPublicKey> newKeyList = dataStorage.getKeySet();
         if (!keySet.contains(receivedData)) {
+
             SharkNetPKI.getInstance().addPublicKey(receivedData);
+            newKeyList.add(receivedData);
+
             dataStorage.addKeySet(SharkNetPKI.getInstance().getSharkNetPublicKeys());
             HashSet<SharkNetPublicKey> publicKeys = SharkNetPKI.getInstance().getSharkNetPublicKeys();
-            Log.d(TAG, "persistData: " + publicKeys.size());
-            nfcCallback.onDataReceived();
+            Log.d(TAG, "persistPublicKey: " + publicKeys.size());
+            nfcCallback.onPublicKeyReceived();
+        }
+    }
+
+    private void persistCertificate(SharkNetCertificate receivedData) {
+
+        HashSet<SharkNetCertificate> certSet = SharkNetPKI.getInstance().getSharkNetCertificates();
+        HashSet<SharkNetCertificate> newCertList = dataStorage.getCertificateSet();
+        if (!certSet.contains(receivedData)) {
+
+            SharkNetPKI.getInstance().addCertificate(receivedData);
+            newCertList.add(receivedData);
+
+            dataStorage.addKeySet(SharkNetPKI.getInstance().getSharkNetPublicKeys());
+            HashSet<SharkNetPublicKey> publicKeys = SharkNetPKI.getInstance().getSharkNetPublicKeys();
+            Log.d(TAG, "persistCertificate: ");
+            nfcCallback.onCertificateReceived();
         }
     }
 }

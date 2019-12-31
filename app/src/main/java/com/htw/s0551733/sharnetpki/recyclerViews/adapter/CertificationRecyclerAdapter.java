@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.htw.s0551733.sharnetpki.R;
-import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetCertification;
+import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetCert;
 
 import java.util.ArrayList;
 
@@ -35,10 +35,10 @@ public class CertificationRecyclerAdapter extends RecyclerView.Adapter<Certifica
         }
     }
 
-    private ArrayList<SharkNetCertification> data;
+    private ArrayList<SharkNetCert> data;
     private OnCertificationClickListener onCertificationClickListener;
 
-    public CertificationRecyclerAdapter(ArrayList<SharkNetCertification> data, OnCertificationClickListener onCertificationClickListener) {
+    public CertificationRecyclerAdapter(ArrayList<SharkNetCert> data, OnCertificationClickListener onCertificationClickListener) {
         this.data = data;
         this.onCertificationClickListener = onCertificationClickListener;
     }

@@ -3,6 +3,9 @@ package com.htw.s0551733.sharnetpki.recyclerViews;
 import android.util.Base64;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Index;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -11,24 +14,30 @@ import java.io.Serializable;
 import java.security.cert.Certificate;
 import java.util.Objects;
 
-import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetCertificate;
 import main.de.htw.berlin.s0551733.sharknetpki.interfaces.User;
 
 import static com.htw.s0551733.sharnetpki.util.SerializationHelper.byteToObj;
 
-public class SharkNetCertification implements Serializable, Comparable<SharkNetCertification>, SharkNetCertificate {
+@Entity(tableName = "certification_table", indices = @Index(value = {""}, unique = true))
+public class SharkNetCert implements Serializable, Comparable<SharkNetCert>, main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetCertificate {
 
+    @NonNull
+    @ColumnInfo(name = "subject")
     @SerializedName("subject")
     private SharkNetUser subject;
 
+    @NonNull
+    @ColumnInfo(name = "certInBase64")
     @SerializedName("certInBase64")
     private String certInBase64;
 
+    @NonNull
+    @ColumnInfo(name = "signer")
     @SerializedName("signer")
     private SharkNetUser signer;
 
 
-    public SharkNetCertification(SharkNetUser subject, String certInBase64, SharkNetUser signer) {
+    public SharkNetCert(SharkNetUser subject, String certInBase64, SharkNetUser signer) {
         this.subject = subject;
         this.certInBase64 = certInBase64;
         this.signer = signer;
@@ -60,7 +69,7 @@ public class SharkNetCertification implements Serializable, Comparable<SharkNetC
     }
 
     @Override
-    public int compareTo(@NonNull SharkNetCertification o) {
+    public int compareTo(@NonNull SharkNetCert o) {
         return this.subject.getUuid().compareTo(o.subject.getUuid());
     }
 
@@ -68,8 +77,8 @@ public class SharkNetCertification implements Serializable, Comparable<SharkNetC
     public boolean equals(Object obj) {
         boolean result = false;
 
-        if (obj instanceof SharkNetCertification) {
-            SharkNetCertification pojo = (SharkNetCertification) obj;
+        if (obj instanceof SharkNetCert) {
+            SharkNetCert pojo = (SharkNetCert) obj;
             result = pojo.subject.getUuid().equals(this.subject.getUuid());
         }
         return result;

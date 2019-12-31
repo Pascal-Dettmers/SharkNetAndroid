@@ -19,8 +19,8 @@ import static com.htw.s0551733.sharnetpki.util.SerializationHelper.byteToObj;
 
 public class SharkNetKey implements Serializable, Comparable<SharkNetKey>, SharkNetPublicKey {
 
-    @SerializedName("user")
-    private SharkNetUser user;
+    @SerializedName("owner")
+    private SharkNetUser owner;
 
     @SerializedName("publicKeyInBase64")
     private String publicKeyInBase64;
@@ -30,20 +30,24 @@ public class SharkNetKey implements Serializable, Comparable<SharkNetKey>, Shark
 
 
 
-    public SharkNetKey(SharkNetUser user, String publicKeyInBase64, Date expirationDate) {
-        this.user = user;
+    public SharkNetKey(SharkNetUser owner, String publicKeyInBase64, Date expirationDate) {
+        this.owner = owner;
         this.publicKeyInBase64 = publicKeyInBase64;
         this.expirationDate = expirationDate;
     }
 
     @Override
     public User getOwner() {
-        return this.user;
+        return this.owner;
+    }
+
+    public SharkNetUser getSharkNetUser() {
+        return this.owner;
     }
 
     @Override
     public void setAlias(String s) {
-        this.user.setAlias(s);
+        this.owner.setAlias(s);
     }
 
     @Override
@@ -65,7 +69,7 @@ public class SharkNetKey implements Serializable, Comparable<SharkNetKey>, Shark
 
     @Override
     public int compareTo(@NonNull SharkNetKey o) {
-        return this.user.getUuid().compareTo(o.user.getUuid());
+        return this.owner.getUuid().compareTo(o.owner.getUuid());
     }
 
 
@@ -75,33 +79,18 @@ public class SharkNetKey implements Serializable, Comparable<SharkNetKey>, Shark
 
         if (obj instanceof SharkNetKey) {
             SharkNetKey pojo = (SharkNetKey) obj;
-            result = pojo.user.getUuid().equals(this.user.getUuid());
+            result = pojo.owner.getUuid().equals(this.owner.getUuid());
         }
         return result;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.user.getUuid());
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(SharkNetUser user) {
-        this.user = user;
+        return Objects.hash(this.owner.getUuid());
     }
 
     public String getPublicKeyInBase64() {
         return publicKeyInBase64;
     }
 
-    public void setPublicKeyInBase64(String publicKeyInBase64) {
-        this.publicKeyInBase64 = publicKeyInBase64;
-    }
-
-    public void setExpirationDate(Date expirationDate) {
-        this.expirationDate = expirationDate;
-    }
 }
