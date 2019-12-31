@@ -80,7 +80,6 @@ public class PublicKeysFragment extends Fragment {
 
     private void initRecyclerViewAdapter() {
         this.sharkNetKeys = SharkNetPKI.getInstance().getSharkNetPublicKeys();
-//        this.sharkNetKeys = storage.getKeySet();
         if (sharkNetKeys != null) {
             recyclerViewAdapter = new PublicKeyRecyclerAdapter(this.sharkNetKeys, new ClickListener() {
                 @Override

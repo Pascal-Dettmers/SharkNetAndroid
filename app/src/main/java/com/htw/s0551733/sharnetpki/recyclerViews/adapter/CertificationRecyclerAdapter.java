@@ -39,6 +39,7 @@ public class CertificationRecyclerAdapter extends RecyclerView.Adapter<Certifica
             listenerRef = new WeakReference<>(listener);
 
             itemView.setOnClickListener(this);
+            deleteCert.setOnClickListener(this);
             
         }
 
@@ -46,7 +47,7 @@ public class CertificationRecyclerAdapter extends RecyclerView.Adapter<Certifica
         public void onClick(View v) {
             if (v.getId() == deleteCert.getId()) {
                 listenerRef.get().onDeleteClicked(getAdapterPosition());
-                Toast.makeText(v.getContext(), "DELETE WAS CLICKED", Toast.LENGTH_SHORT).show();
+                Toast.makeText(v.getContext(), "DELETED", Toast.LENGTH_SHORT).show();
             }
 
         }

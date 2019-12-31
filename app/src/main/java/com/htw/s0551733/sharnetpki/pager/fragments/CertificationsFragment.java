@@ -106,8 +106,6 @@ public class CertificationsFragment extends Fragment {
 
     public void updateRecyclerView() {
         HashSet<SharkNetCertificate> updatedCertList = SharkNetPKI.getInstance().getSharkNetCertificates();
-        ;
-//        this.sharkNetKeys.clear();
         this.sharkNetCertificates.addAll(updatedCertList);
         this.recyclerViewAdapter.notifyDataSetChanged();
     }

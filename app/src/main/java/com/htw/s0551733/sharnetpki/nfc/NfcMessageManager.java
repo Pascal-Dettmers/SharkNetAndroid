@@ -27,9 +27,7 @@ public class NfcMessageManager implements NfcAdapter.OnNdefPushCompleteCallback,
 
     @Override
     public void onNdefPushComplete(NfcEvent event) {
-        // Todo onPushComplete
-        // think of a smart event, close activity?
-        // show alert/dialog
+
     }
 }
 

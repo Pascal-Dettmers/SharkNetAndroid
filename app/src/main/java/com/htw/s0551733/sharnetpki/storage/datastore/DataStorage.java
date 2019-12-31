@@ -52,7 +52,7 @@ public class DataStorage {
     }
 
     public HashSet<SharkNetCertificate> getCertificateSet() {
-        Type keyListType = new TypeToken<HashSet<SharkNetCertificate>>() {
+        Type keyListType = new TypeToken<HashSet<SharkNetCert>>() {
         }.getType();
         HashSet<SharkNetCertificate> certSet = new HashSet<>();
 

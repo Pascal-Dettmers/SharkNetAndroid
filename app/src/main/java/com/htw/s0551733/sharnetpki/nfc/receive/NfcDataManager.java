@@ -138,10 +138,7 @@ public class NfcDataManager {
 
             SharkNetPKI.getInstance().addPublicKey(receivedData);
             newKeyList.add(receivedData);
-
             dataStorage.addKeySet(SharkNetPKI.getInstance().getSharkNetPublicKeys());
-            HashSet<SharkNetPublicKey> publicKeys = SharkNetPKI.getInstance().getSharkNetPublicKeys();
-            Log.d(TAG, "persistPublicKey: " + publicKeys.size());
             nfcCallback.onPublicKeyReceived();
         }
     }
@@ -154,10 +151,7 @@ public class NfcDataManager {
 
             SharkNetPKI.getInstance().addCertificate(receivedData);
             newCertList.add(receivedData);
-
-            dataStorage.addKeySet(SharkNetPKI.getInstance().getSharkNetPublicKeys());
-            HashSet<SharkNetPublicKey> publicKeys = SharkNetPKI.getInstance().getSharkNetPublicKeys();
-            Log.d(TAG, "persistCertificate: ");
+            dataStorage.addCertificateSet(SharkNetPKI.getInstance().getSharkNetCertificates());
             nfcCallback.onCertificateReceived();
         }
     }

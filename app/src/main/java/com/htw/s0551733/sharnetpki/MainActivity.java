@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
 
     private void initPKI() {
         HashSet<SharkNetPublicKey> publicKeySet = storage.getKeySet();
-        HashSet<SharkNetCertificate> certificateSet = new HashSet<>();
+        HashSet<SharkNetCertificate> certificateSet = storage.getCertificateSet();
 
         try {
             this.inputStream = openFileInput("keystore.pksc12");
