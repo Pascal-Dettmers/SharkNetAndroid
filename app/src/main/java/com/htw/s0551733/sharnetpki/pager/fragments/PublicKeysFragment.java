@@ -28,7 +28,7 @@ import main.de.htw.berlin.s0551733.sharknetpki.SharkNetPKI;
 import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetPublicKey;
 
 
-public class PublicKeysFragment extends Fragment implements NfcCallback {
+public class PublicKeysFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter recyclerViewAdapter;
@@ -59,14 +59,13 @@ public class PublicKeysFragment extends Fragment implements NfcCallback {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_public_keys, container, false);
+        storage = new DataStorage(new SharedPreferencesHandler(getActivity()));
         setUpRecyclerView(view);
-
         return view;
     }
 
     private void setUpRecyclerView(View view) {
 
-        storage = new DataStorage(new SharedPreferencesHandler(getActivity()));
         recyclerView = view.findViewById(R.id.fragment_public_key_tab_recycler_view);
         // improve performance
         recyclerView.setHasFixedSize(true);
@@ -128,14 +127,4 @@ public class PublicKeysFragment extends Fragment implements NfcCallback {
         super.onDetach();
     }
 
-
-    @Override
-    public void onPublicKeyReceived() {
-        updateRecyclerView();
-    }
-
-    @Override
-    public void onCertificateReceived() {
-
-    }
 }

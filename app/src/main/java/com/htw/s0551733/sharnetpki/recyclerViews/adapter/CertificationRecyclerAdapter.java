@@ -3,57 +3,76 @@ package com.htw.s0551733.sharnetpki.recyclerViews.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.htw.s0551733.sharnetpki.R;
 import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetCert;
+import com.htw.s0551733.sharnetpki.recyclerViews.clickListener.ClickListener;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
+import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetCertificate;
+import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetPublicKey;
 
 public class CertificationRecyclerAdapter extends RecyclerView.Adapter<CertificationRecyclerAdapter.CustomViewHolder> {
 
     public static class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView alias;
         TextView signer;
+        TextView subject;
+        Button deleteCert;
+        private WeakReference<ClickListener> listenerRef;
 
-        OnCertificationClickListener onCertificationClickListener;
 
-        public CustomViewHolder(View itemView, OnCertificationClickListener onCertificationClickListener) {
+        public CustomViewHolder(View itemView, ClickListener listener) {
             super(itemView);
-            this.alias = itemView.findViewById(R.id.cert_public_key);
-            this.signer = itemView.findViewById(R.id.cert_signer);
-            this.onCertificationClickListener = onCertificationClickListener;
+            this.signer = itemView.findViewById(R.id.tv_certificate_signer);
+            this.subject = itemView.findViewById(R.id.tv_certificate_subject);
+            this.deleteCert = itemView.findViewById(R.id.material_button_delete_certificate);
+            listenerRef = new WeakReference<>(listener);
+
             itemView.setOnClickListener(this);
+            
         }
 
         @Override
         public void onClick(View v) {
-            onCertificationClickListener.onKeyClick(getAdapterPosition());
+            if (v.getId() == deleteCert.getId()) {
+                listenerRef.get().onDeleteClicked(getAdapterPosition());
+                Toast.makeText(v.getContext(), "DELETE WAS CLICKED", Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
 
-    private ArrayList<SharkNetCert> data;
-    private OnCertificationClickListener onCertificationClickListener;
+    private HashSet<SharkNetCertificate> data;
+    private final ClickListener listener;
 
-    public CertificationRecyclerAdapter(ArrayList<SharkNetCert> data, OnCertificationClickListener onCertificationClickListener) {
+    public CertificationRecyclerAdapter(HashSet<SharkNetCertificate> data, ClickListener listener) {
         this.data = data;
-        this.onCertificationClickListener = onCertificationClickListener;
+        this.listener = listener;
     }
 
     @NonNull
     @Override
     public CustomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new CustomViewHolder(
-                LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_layout_certification_fragment, parent, false), onCertificationClickListener);
+                LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_layout_certification_fragment, parent, false), listener);
     }
 
     @Override
     public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
-        holder.alias.setText(data.get(position).getSubject().getAlias());
-        holder.signer.setText(data.get(position).getSigner().getAlias());
+        List<SharkNetCertificate> dataList = new ArrayList<>(data);
+
+        holder.subject.setText(dataList.get(position).getSubject().getAlias());
+        holder.signer.setText(dataList.get(position).getSigner().getAlias());
     }
 
     @Override
@@ -61,7 +80,4 @@ public class CertificationRecyclerAdapter extends RecyclerView.Adapter<Certifica
         return data.size();
     }
 
-    public interface OnCertificationClickListener {
-        void onKeyClick(int position);
-    }
 }

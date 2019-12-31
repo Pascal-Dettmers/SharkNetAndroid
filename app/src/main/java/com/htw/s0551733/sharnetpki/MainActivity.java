@@ -14,7 +14,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomappbar.BottomAppBar;
@@ -26,6 +25,8 @@ import com.htw.s0551733.sharnetpki.nfc.NfcMessageManager;
 import com.htw.s0551733.sharnetpki.nfc.receive.NfcCallback;
 import com.htw.s0551733.sharnetpki.nfc.receive.NfcDataManager;
 import com.htw.s0551733.sharnetpki.pager.SharkNetPagerAdapter;
+import com.htw.s0551733.sharnetpki.pager.fragments.CertificationsFragment;
+import com.htw.s0551733.sharnetpki.pager.fragments.PublicKeysFragment;
 import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetCert;
 import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetKey;
 import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetUser;
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
     /**
      * The pager adapter, which provides the pages to the view pager widget.
      */
-    private PagerAdapter pagerAdapter;
+    private SharkNetPagerAdapter pagerAdapter;
 
     /**
      * The Tab-Icons as an integer
@@ -221,17 +222,6 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
         }
     }
 
-    //todo cert in datastorage
-//    private HashSet<SharkNetCert> getCertificateSet() {
-//        HashSet<SharkNetPublicKey> keySet = storage.getKeySet();
-//
-//        if (keySet != null) {
-//            return keySet;
-//        } else {
-//            return new HashSet<>();
-//        }
-//    }
-
     private void setUpTabLayout() {
         // Instantiate a ViewPager, SharkNetPagerAdapter and tabLayout.
         mPager = findViewById(R.id.view_pager);
@@ -258,7 +248,6 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
         }
     }
-
 
 
     // Todo beschreiben in der Arbeit: https://stackoverflow.com/questions/26943935/what-does-enableforegrounddispatch-and-disableforegrounddispatch-do
@@ -312,7 +301,15 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Succesfull")
                 .setMessage("Key succesfull received!")
-                .setPositiveButton("Ok", null)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        int publicKeyFragmentIndex = 0;
+                        SharkNetPagerAdapter adapter = ((SharkNetPagerAdapter) mPager.getAdapter());
+                        PublicKeysFragment fragment = (PublicKeysFragment) adapter.getFragment(publicKeyFragmentIndex);
+                        fragment.updateRecyclerView();
+                    }
+                })
                 .setCancelable(false)
                 .show();
     }
@@ -322,7 +319,15 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Succesfull")
                 .setMessage("Certificate succesfull received!")
-                .setPositiveButton("Ok", null)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        int certificateFragmentIndex = 1;
+                        SharkNetPagerAdapter adapter = ((SharkNetPagerAdapter)mPager.getAdapter());
+                        CertificationsFragment fragment = (CertificationsFragment) adapter.getFragment(certificateFragmentIndex);
+                        fragment.updateRecyclerView();
+                    }
+                })
                 .setCancelable(false)
                 .show();
     }

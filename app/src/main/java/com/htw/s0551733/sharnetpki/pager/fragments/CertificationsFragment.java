@@ -13,19 +13,27 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.htw.s0551733.sharnetpki.R;
-import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetCert;
+import com.htw.s0551733.sharnetpki.nfc.receive.NfcCallback;
 import com.htw.s0551733.sharnetpki.recyclerViews.adapter.CertificationRecyclerAdapter;
+import com.htw.s0551733.sharnetpki.recyclerViews.clickListener.ClickListener;
+import com.htw.s0551733.sharnetpki.storage.datastore.DataStorage;
+import com.htw.s0551733.sharnetpki.util.SharedPreferencesHandler;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
-public class CertificationsFragment extends Fragment implements CertificationRecyclerAdapter.OnCertificationClickListener {
+import main.de.htw.berlin.s0551733.sharknetpki.SharkNetPKI;
+import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetCertificate;
+
+public class CertificationsFragment extends Fragment {
 
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter recyclerViewAdapter;
     private LinearLayoutManager layoutManager;
-
-    ArrayList<SharkNetCert> certList;
+    private DataStorage storage;
+    HashSet<SharkNetCertificate> sharkNetCertificates;
 
     public CertificationsFragment() {
         // Required empty public constructor
@@ -48,7 +56,13 @@ public class CertificationsFragment extends Fragment implements CertificationRec
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_certifications, container, false);
+        storage = new DataStorage(new SharedPreferencesHandler(getActivity()));
+        setUpRecyclerView(view);
 
+        return view;
+    }
+
+    private void setUpRecyclerView(View view) {
         // recycler view
         recyclerView = view.findViewById(R.id.fragment_certification_tab_recycler_view);
         // use this setting to improve performance if you know that changes
@@ -62,18 +76,40 @@ public class CertificationsFragment extends Fragment implements CertificationRec
         recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         initRecyclerViewAdapter();
-
-        return view;
     }
 
     private void initRecyclerViewAdapter() {
-        if (this.certList != null) {
-            recyclerViewAdapter = new CertificationRecyclerAdapter(this.certList, this);
+        this.sharkNetCertificates = SharkNetPKI.getInstance().getSharkNetCertificates();
+        if (this.sharkNetCertificates != null) {
+            recyclerViewAdapter = new CertificationRecyclerAdapter(this.sharkNetCertificates, new ClickListener() {
+                @Override
+                public void onSendClicked(int position) {
+
+                }
+
+                @Override
+                public void onDeleteClicked(int position) {
+                    List<SharkNetCertificate> list = new ArrayList<>(sharkNetCertificates);
+                    SharkNetCertificate sharkNetCertificate = list.get(position);
+                    storage.deleteSharkNetCertificate(sharkNetCertificate);
+                    sharkNetCertificates.remove(list.get(position));
+                    SharkNetPKI.getInstance().removeCertificate(list.get(position));
+                    updateRecyclerView();
+                }
+            });
             recyclerView.setAdapter(recyclerViewAdapter);
         } else {
 
         }
+    }
 
+
+    public void updateRecyclerView() {
+        HashSet<SharkNetCertificate> updatedCertList = SharkNetPKI.getInstance().getSharkNetCertificates();
+        ;
+//        this.sharkNetKeys.clear();
+        this.sharkNetCertificates.addAll(updatedCertList);
+        this.recyclerViewAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -86,11 +122,4 @@ public class CertificationsFragment extends Fragment implements CertificationRec
         super.onDetach();
     }
 
-    @Override
-    public void onKeyClick(int position) {
-//        Intent intent = new Intent(getActivity(), DetailViewCertificationActivity.class);
-//        int itemPos = position;
-//        intent.putExtra("ITEM_POS", itemPos);
-//        startActivity(intent);
-    }
 }

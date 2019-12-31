@@ -78,7 +78,7 @@ public class DataStorage {
         sharedPreferencesHandler.writeValue(Constants.CERTIFICATE_LIST, newCertHashSetJson);
     }
 
-    public void deleteCertificate(SharkNetCertificate sharkNetCert) {
+    public void deleteSharkNetCertificate(SharkNetCertificate sharkNetCert) {
         HashSet<SharkNetCertificate> certificateSet = getCertificateSet();
         certificateSet.remove(sharkNetCert);
         addCertificateSet(certificateSet);
