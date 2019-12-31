@@ -23,14 +23,14 @@ import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetPublicKey;
 
 import static com.htw.s0551733.sharnetpki.util.SerializationHelper.byteToObj;
 
-public class NfcDataManager {
+public class NfcReceiveDataManager {
 
     private final String TAG = this.getClass().getSimpleName();
     private Context context;
     private DataStorage dataStorage;
     private NfcCallback nfcCallback;
 
-    public NfcDataManager(Context context, NfcCallback nfcCallback) {
+    public NfcReceiveDataManager(Context context, NfcCallback nfcCallback) {
         this.context = context;
         this.dataStorage = new DataStorage(new SharedPreferencesHandler(context));
         this.nfcCallback = nfcCallback;

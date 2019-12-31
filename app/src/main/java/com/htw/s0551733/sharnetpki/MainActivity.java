@@ -23,7 +23,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.htw.s0551733.sharnetpki.nfc.NfcChecks;
 import com.htw.s0551733.sharnetpki.nfc.NfcMessageManager;
 import com.htw.s0551733.sharnetpki.nfc.receive.NfcCallback;
-import com.htw.s0551733.sharnetpki.nfc.receive.NfcDataManager;
+import com.htw.s0551733.sharnetpki.nfc.receive.NfcReceiveDataManager;
 import com.htw.s0551733.sharnetpki.pager.SharkNetPagerAdapter;
 import com.htw.s0551733.sharnetpki.pager.fragments.CertificationsFragment;
 import com.htw.s0551733.sharnetpki.pager.fragments.PublicKeysFragment;
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
     /**
      * Managed receiving NFC data
      */
-    private NfcDataManager nfcDataManager;
+    private NfcReceiveDataManager nfcReceiveDataManager;
 
     /**
      * FileInputStream for laoding the KeyStore
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
     private void prepareNFC() {
         this.nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         NfcChecks.preliminaryNfcChecks(nfcAdapter, this);
-        nfcDataManager = new NfcDataManager(this, this);
+        nfcReceiveDataManager = new NfcReceiveDataManager(this, this);
     }
 
     private void initFAB() {
@@ -270,14 +270,14 @@ public class MainActivity extends AppCompatActivity implements NfcCallback {
         if (nfcAdapter != null) {
             enableForegroundDispatch();
         }
-        nfcDataManager.processIntent(this.getIntent());
+        nfcReceiveDataManager.processIntent(this.getIntent());
         HashSet<SharkNetPublicKey> publicKeys = SharkNetPKI.getInstance().getSharkNetPublicKeys();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        nfcDataManager.processIntent(intent);
+        nfcReceiveDataManager.processIntent(intent);
     }
 
 

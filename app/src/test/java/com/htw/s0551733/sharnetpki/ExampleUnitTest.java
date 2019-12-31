@@ -7,7 +7,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetKey;
 import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetUser;
-import com.htw.s0551733.sharnetpki.storage.datastore.InterfaceAdapter;
 
 import org.junit.Test;
 
@@ -16,7 +15,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 
-import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetCertificate;
 import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetPublicKey;
 
 import static org.junit.Assert.*;
