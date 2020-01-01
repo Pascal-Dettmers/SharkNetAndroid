@@ -110,11 +110,6 @@ public final class RSAKeystoreHandler  {
             Calendar end = Calendar.getInstance();
             //Jahr von heute plus YEAR Jahre
             end.add(Calendar.YEAR, KEY_DURATION_YEARS);
-            // Todo let user decide in days but not more than 1 year
-//            end.add(Calendar.DATE, 5);
-//
-//            final long now = java.lang.System.currentTimeMillis();
-//            final long validityDays = 10000L;
 
 
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(

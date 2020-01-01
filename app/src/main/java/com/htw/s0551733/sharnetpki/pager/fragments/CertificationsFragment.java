@@ -1,10 +1,12 @@
 package com.htw.s0551733.sharnetpki.pager.fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -12,8 +14,11 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.htw.s0551733.sharnetpki.R;
 import com.htw.s0551733.sharnetpki.nfc.receive.NfcCallback;
+import com.htw.s0551733.sharnetpki.pager.SharkNetPagerAdapter;
+import com.htw.s0551733.sharnetpki.recyclerViews.SharkNetCert;
 import com.htw.s0551733.sharnetpki.recyclerViews.adapter.CertificationRecyclerAdapter;
 import com.htw.s0551733.sharnetpki.recyclerViews.clickListener.ClickListener;
 import com.htw.s0551733.sharnetpki.storage.datastore.DataStorage;
@@ -24,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import main.de.htw.berlin.s0551733.sharknetpki.SharkNetPKI;
+import main.de.htw.berlin.s0551733.sharknetpki.VerifySignaturResult;
 import main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetCertificate;
 
 public class CertificationsFragment extends Fragment {
@@ -84,6 +90,40 @@ public class CertificationsFragment extends Fragment {
             recyclerViewAdapter = new CertificationRecyclerAdapter(this.sharkNetCertificates, new ClickListener() {
                 @Override
                 public void onSendClicked(int position) {
+                    List<SharkNetCertificate> list = new ArrayList<>(sharkNetCertificates);
+                    SharkNetCertificate sharkNetCertificate = list.get(position);
+
+                    if(SharkNetPKI.getInstance().getUsers().contains(sharkNetCertificate.getSigner())){
+                        if(SharkNetPKI.getInstance().verifySignature(sharkNetCertificate.getCertificate(),SharkNetPKI.getInstance().getPublicKey(sharkNetCertificate.getSigner().getUuid())) == VerifySignaturResult.VERIFIED){
+
+                            SharkNetCert verifiedCert = (SharkNetCert) list.get(position);
+                            verifiedCert.setVerified(true);
+
+                            storage.deleteSharkNetCertificate(sharkNetCertificate);
+                            sharkNetCertificates.remove(list.get(position));
+                            SharkNetPKI.getInstance().removeCertificate(list.get(position));
+
+                            storage.getCertificateSet().add(verifiedCert);
+                            sharkNetCertificates.add(verifiedCert);
+                            SharkNetPKI.getInstance().addCertificate(verifiedCert);
+
+                            updateRecyclerView();
+
+                            new MaterialAlertDialogBuilder(getContext())
+                                    .setTitle("Succesfull")
+                                    .setMessage("Certificate succesfull verified!")
+                                    .setPositiveButton("Ok",null)
+                                    .setCancelable(false)
+                                    .show();
+
+                        } else {
+                            Toast.makeText(getContext(), "Error - compromised certificate ", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(getContext(), "Error - fitting public key not found ", Toast.LENGTH_SHORT).show();
+                    }
+
+                    updateRecyclerView();
 
                 }
 

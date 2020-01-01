@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,20 +28,25 @@ public class CertificationRecyclerAdapter extends RecyclerView.Adapter<Certifica
     public static class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView signer;
         TextView subject;
+        ImageView verified;
         Button deleteCert;
+        Button verifyCert;
         private WeakReference<ClickListener> listenerRef;
 
 
         public CustomViewHolder(View itemView, ClickListener listener) {
             super(itemView);
             this.signer = itemView.findViewById(R.id.tv_certificate_signer);
+            this.verified = itemView.findViewById(R.id.verify_icon);
             this.subject = itemView.findViewById(R.id.tv_certificate_subject);
             this.deleteCert = itemView.findViewById(R.id.material_button_delete_certificate);
+            this.verifyCert = itemView.findViewById(R.id.material_button_verify);
             listenerRef = new WeakReference<>(listener);
 
             itemView.setOnClickListener(this);
             deleteCert.setOnClickListener(this);
-            
+            verifyCert.setOnClickListener(this);
+
         }
 
         @Override
@@ -48,6 +54,8 @@ public class CertificationRecyclerAdapter extends RecyclerView.Adapter<Certifica
             if (v.getId() == deleteCert.getId()) {
                 listenerRef.get().onDeleteClicked(getAdapterPosition());
                 Toast.makeText(v.getContext(), "DELETED", Toast.LENGTH_SHORT).show();
+            } else if(v.getId() == verifyCert.getId()) {
+                listenerRef.get().onSendClicked(getAdapterPosition());
             }
 
         }
@@ -71,9 +79,14 @@ public class CertificationRecyclerAdapter extends RecyclerView.Adapter<Certifica
     @Override
     public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
         List<SharkNetCertificate> dataList = new ArrayList<>(data);
-
+        SharkNetCert sharkNetCertificate = (SharkNetCert) dataList.get(position);
         holder.subject.setText(dataList.get(position).getSubject().getAlias());
         holder.signer.setText(dataList.get(position).getSigner().getAlias());
+        if(sharkNetCertificate.getVerified()) {
+            holder.verified.setImageResource(R.drawable.ic_verified_key_48dp);
+        } else {
+            holder.verified.setImageResource(R.drawable.ic_not_verified_error_48dp);
+        }
     }
 
     @Override

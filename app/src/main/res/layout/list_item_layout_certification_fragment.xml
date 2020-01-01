@@ -22,6 +22,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/verify_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_not_verified_error_48dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+            </androidx.appcompat.widget.AppCompatImageView>
+
             <ImageView
                 android:id="@+id/image_view_certificate_icon"
                 android:layout_width="wrap_content"
@@ -78,6 +88,14 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_certificate_signer">
+
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/material_button_verify"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/certificate_card_view_verify" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/material_button_delete_certificate"

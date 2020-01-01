@@ -18,29 +18,30 @@ import main.de.htw.berlin.s0551733.sharknetpki.interfaces.User;
 
 import static com.htw.s0551733.sharnetpki.util.SerializationHelper.byteToObj;
 
-@Entity(tableName = "certification_table", indices = @Index(value = {""}, unique = true))
 public class SharkNetCert implements Serializable, Comparable<SharkNetCert>, main.de.htw.berlin.s0551733.sharknetpki.interfaces.SharkNetCertificate {
 
     @NonNull
-    @ColumnInfo(name = "subject")
     @SerializedName("subject")
     private SharkNetUser subject;
 
     @NonNull
-    @ColumnInfo(name = "certInBase64")
     @SerializedName("certInBase64")
     private String certInBase64;
 
     @NonNull
-    @ColumnInfo(name = "signer")
     @SerializedName("signer")
     private SharkNetUser signer;
+
+    @NonNull
+    @SerializedName("verified")
+    private Boolean verified;
 
 
     public SharkNetCert(SharkNetUser subject, String certInBase64, SharkNetUser signer) {
         this.subject = subject;
         this.certInBase64 = certInBase64;
         this.signer = signer;
+        this.verified = false;
     }
 
     @Override
@@ -98,5 +99,14 @@ public class SharkNetCert implements Serializable, Comparable<SharkNetCert>, mai
 
     public void setSigner(SharkNetUser signer) {
         this.signer = signer;
+    }
+
+    @NonNull
+    public Boolean getVerified() {
+        return verified;
+    }
+
+    public void setVerified(@NonNull Boolean verified) {
+        this.verified = verified;
     }
 }
